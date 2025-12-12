@@ -30,7 +30,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex h-16 items-center gap-2 border-b border-[hsl(var(--border))] px-6">
           <Briefcase className="h-7 w-7 text-[hsl(var(--primary))]" />
-          <span className="text-xl font-bold">FlowHire</span>
+          <span className="text-xl font-bold">Verolabz</span>
         </div>
 
         {/* Navigation */}
@@ -95,7 +95,7 @@ export function Sidebar() {
               Check our documentation or contact support.
             </p>
             <a
-              href="mailto:support@flowhire.io"
+              href="mailto:support@Verolabz.io"
               className="text-xs text-[hsl(var(--primary))] hover:underline"
             >
               Contact Support

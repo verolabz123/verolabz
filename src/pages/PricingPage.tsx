@@ -28,7 +28,7 @@ const plans = [
     name: "Free Trial",
     monthlyPrice: 0,
     yearlyPrice: 0,
-    description: "Try FlowHire risk-free",
+    description: "Try Verolabz risk-free",
     features: [
       "10 resumes/month",
       "1 recruiter",
@@ -278,7 +278,7 @@ export default function PricingPage() {
               Our team is here to help you find the right plan for your needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="mailto:sales@flowhire.io">
+              <a href="mailto:sales@Verolabz.io">
                 <Button size="lg" variant="outline">
                   Contact Sales
                 </Button>

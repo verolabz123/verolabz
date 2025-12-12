@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FlowHire - SaaS Hiring Automation Platform",
+  title: "Verolabz - SaaS Hiring Automation Platform",
   description:
     "Automate resume screening. Hire 10x faster with AI-powered resume parsing, scoring, and matching.",
   keywords: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     "HR tech",
   ],
   openGraph: {
-    title: "FlowHire - SaaS Hiring Automation Platform",
+    title: "Verolabz - SaaS Hiring Automation Platform",
     description: "Automate resume screening. Hire 10x faster.",
     type: "website",
   },

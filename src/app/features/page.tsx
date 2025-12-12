@@ -18,8 +18,8 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-    title: "Features - FlowHire",
-    description: "Explore all the powerful features of FlowHire's hiring automation platform.",
+    title: "Features - Verolabz",
+    description: "Explore all the powerful features of Verolabz's hiring automation platform.",
 };
 
 export default function FeaturesPage() {
@@ -189,7 +189,7 @@ export default function FeaturesPage() {
                     <div className="container mx-auto px-4 md:px-6">
                         <div className="text-center mb-12">
                             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                                Traditional Hiring vs FlowHire
+                                Traditional Hiring vs Verolabz
                             </h2>
                             <p className="text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto">
                                 See how automation transforms your hiring process
@@ -203,17 +203,17 @@ export default function FeaturesPage() {
                                     Traditional
                                 </div>
                                 <div className="text-center font-semibold text-[hsl(var(--primary))]">
-                                    FlowHire
+                                    Verolabz
                                 </div>
                             </div>
 
                             {[
-                                { aspect: "Resume Screening", traditional: "Manual, hours per resume", flowhire: "Automated, seconds per resume" },
-                                { aspect: "Candidate Scoring", traditional: "Subjective, inconsistent", flowhire: "AI-powered, objective" },
-                                { aspect: "Data Entry", traditional: "Manual copy-paste", flowhire: "Auto-extracted & organized" },
-                                { aspect: "Status Updates", traditional: "Email chains, spreadsheets", flowhire: "Real-time dashboard" },
-                                { aspect: "Notifications", traditional: "Manual follow-ups", flowhire: "Automated triggers" },
-                                { aspect: "Scaling", traditional: "Hire more recruiters", flowhire: "Same team, 10x volume" },
+                                { aspect: "Resume Screening", traditional: "Manual, hours per resume", Verolabz: "Automated, seconds per resume" },
+                                { aspect: "Candidate Scoring", traditional: "Subjective, inconsistent", Verolabz: "AI-powered, objective" },
+                                { aspect: "Data Entry", traditional: "Manual copy-paste", Verolabz: "Auto-extracted & organized" },
+                                { aspect: "Status Updates", traditional: "Email chains, spreadsheets", Verolabz: "Real-time dashboard" },
+                                { aspect: "Notifications", traditional: "Manual follow-ups", Verolabz: "Automated triggers" },
+                                { aspect: "Scaling", traditional: "Hire more recruiters", Verolabz: "Same team, 10x volume" },
                             ].map((row, i) => (
                                 <div
                                     key={i}
@@ -226,7 +226,7 @@ export default function FeaturesPage() {
                                     </div>
                                     <div className="text-center flex items-center justify-center gap-2">
                                         <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                                        <span className="text-sm">{row.flowhire}</span>
+                                        <span className="text-sm">{row.Verolabz}</span>
                                     </div>
                                 </div>
                             ))}
@@ -241,7 +241,7 @@ export default function FeaturesPage() {
                             Ready to Experience These Features?
                         </h2>
                         <p className="text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto mb-8">
-                            Start your free trial today and see how FlowHire can transform your hiring.
+                            Start your free trial today and see how Verolabz can transform your hiring.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link href="/auth/register">

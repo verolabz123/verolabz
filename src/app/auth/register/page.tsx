@@ -72,7 +72,7 @@ export default function RegisterPage() {
                 <div className="text-center mb-8">
                     <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-[hsl(var(--primary))]">
                         <Briefcase className="h-8 w-8" />
-                        FlowHire
+                        Verolabz
                     </Link>
                     <p className="text-[hsl(var(--muted-foreground))] mt-2">
                         Create your account

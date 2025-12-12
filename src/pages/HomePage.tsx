@@ -80,7 +80,7 @@ export default function HomePage() {
                     <div className="h-3 w-3 rounded-full bg-red-400" />
                     <div className="h-3 w-3 rounded-full bg-yellow-400" />
                     <div className="h-3 w-3 rounded-full bg-green-400" />
-                    <span className="ml-2 text-sm text-[hsl(var(--muted-foreground))]">FlowHire Dashboard</span>
+                    <span className="ml-2 text-sm text-[hsl(var(--muted-foreground))]">Verolabz Dashboard</span>
                   </div>
                   <div className="p-6 space-y-4">
                     <div className="grid grid-cols-3 gap-4">
@@ -126,7 +126,7 @@ export default function HomePage() {
         <section className="py-16 md:py-24 bg-[hsl(var(--muted))]/30">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose FlowHire?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose Verolabz?</h2>
               <p className="text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto">
                 Everything you need to streamline your hiring process
               </p>
@@ -311,7 +311,7 @@ export default function HomePage() {
         <section className="py-16 md:py-24 bg-[hsl(var(--muted))]/30">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Who Is FlowHire For?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Who Is Verolabz For?</h2>
               <p className="text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto">
                 Built for anyone who wants to hire smarter, not harder
               </p>
@@ -470,7 +470,7 @@ export default function HomePage() {
               Ready to Transform Your Hiring?
             </h2>
             <p className="text-[hsl(var(--primary-foreground))]/80 max-w-2xl mx-auto mb-8">
-              Join hundreds of companies already using FlowHire to hire smarter and faster.
+              Join hundreds of companies already using Verolabz to hire smarter and faster.
             </p>
             <Link to="/auth/register">
               <Button size="lg" variant="secondary">

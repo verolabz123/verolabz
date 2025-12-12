@@ -18,7 +18,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <Briefcase className="h-7 w-7 text-[hsl(var(--primary))]" />
-            <span className="text-xl font-bold">FlowHire</span>
+            <span className="text-xl font-bold">Verolabz</span>
           </Link>
 
           {/* Desktop Navigation */}

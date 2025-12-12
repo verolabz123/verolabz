@@ -75,7 +75,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <Link to="/" className="flex items-center gap-2">
               <Briefcase className="h-8 w-8 text-[hsl(var(--primary))]" />
-              <span className="text-2xl font-bold">FlowHire</span>
+              <span className="text-2xl font-bold">Verolabz</span>
             </Link>
           </div>
           <CardTitle className="text-2xl">Sign in</CardTitle>

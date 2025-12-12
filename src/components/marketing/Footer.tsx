@@ -10,7 +10,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <Briefcase className="h-6 w-6 text-[hsl(var(--primary))]" />
-              <span className="text-lg font-bold">FlowHire</span>
+              <span className="text-lg font-bold">Verolabz</span>
             </Link>
             <p className="text-sm text-[hsl(var(--muted-foreground))]">
               Automate resume screening. Hire 10x faster.
@@ -84,7 +84,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:support@flowhire.io"
+                  href="mailto:support@Verolabz.io"
                   className="hover:text-[hsl(var(--foreground))] transition-colors"
                 >
                   Contact
@@ -102,7 +102,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-[hsl(var(--border))]">
           <p className="text-center text-sm text-[hsl(var(--muted-foreground))]">
-            © {new Date().getFullYear()} FlowHire. All rights reserved.
+            © {new Date().getFullYear()} Verolabz. All rights reserved.
           </p>
         </div>
       </div>

@@ -123,7 +123,7 @@ export default function HowItWorksPage() {
               From Upload to Hired in 8 Steps
             </h1>
             <p className="text-xl text-[hsl(var(--muted-foreground))] max-w-2xl mx-auto">
-              See how FlowHire transforms your hiring process with intelligent
+              See how Verolabz transforms your hiring process with intelligent
               automation.
             </p>
           </div>
@@ -185,7 +185,7 @@ export default function HowItWorksPage() {
               </h2>
               <p className="text-[hsl(var(--muted-foreground))] mb-8">
                 No complex setup required. Create your account, upload your
-                first resume, and see FlowHire in action.
+                first resume, and see Verolabz in action.
               </p>
 
               <div className="grid md:grid-cols-3 gap-6 mb-12">
