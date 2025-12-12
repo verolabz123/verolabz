@@ -27,5 +27,13 @@
     }
   },
   "include": ["src"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "src/app",
+    "src/proxy.ts",
+    "src/lib/auth.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

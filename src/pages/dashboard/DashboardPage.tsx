@@ -30,7 +30,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { getResumesByUserId, getResumeStats } from "@/lib/firebase-db";
+import {
+  getResumesByUserId,
+  getResumeStats,
+  type FirebaseResume,
+} from "@/lib/firebase-db";
 import { toast } from "@/components/ui/use-toast";
 
 interface DashboardStats {
@@ -64,7 +68,7 @@ const workflowStatusColors: Record<string, string> = {
 };
 
 // Helper function to generate chart data from resumes
-const generateChartData = (resumes: any[]) => {
+const generateChartData = (resumes: FirebaseResume[]) => {
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
@@ -76,8 +80,9 @@ const generateChartData = (resumes: any[]) => {
   });
 
   resumes.forEach((resume) => {
-    const resumeDate =
-      resume.createdAt?.toDate?.() || new Date(resume.createdAt);
+    const resumeDate = resume.createdAt?.toDate
+      ? resume.createdAt.toDate()
+      : new Date();
     const dateStr = resumeDate.toDateString();
     const dayData = last7Days.find((d) => d.date === dateStr);
     if (dayData) {
@@ -131,8 +136,8 @@ export default function DashboardPage() {
 
       // Sort resumes by creation date (newest first)
       const sortedResumes = resumes.sort((a, b) => {
-        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
         return dateB.getTime() - dateA.getTime();
       });
 
@@ -176,6 +181,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const stats = data?.stats || {
