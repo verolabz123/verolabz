@@ -7,12 +7,23 @@ import {
   Users,
   User,
   CreditCard,
+  FileSpreadsheet,
 } from "lucide-react";
 
-const navigation = [
+const navigation: Array<{
+  name: string;
+  href: string;
+  icon: any;
+  disabled?: boolean;
+}> = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Uploads", href: "/dashboard/uploads", icon: Upload },
-  { name: "Candidates", href: "/dashboard", icon: Users, disabled: true },
+  { name: "Single Upload", href: "/dashboard/uploads", icon: Upload },
+  {
+    name: "Bulk Upload",
+    href: "/dashboard/bulk-upload",
+    icon: FileSpreadsheet,
+  },
+  { name: "Candidates", href: "/dashboard/candidates", icon: Users },
 ];
 
 const settingsNavigation = [

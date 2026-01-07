@@ -21,6 +21,8 @@ const COLLECTIONS = {
   USERS: "users",
   RESUMES: "resumes",
   NOTES: "notes",
+  APPLICANTS: "applicants",
+  BATCH_UPLOADS: "batch_uploads",
 };
 
 // Types
@@ -51,12 +53,54 @@ export interface FirebaseResume {
   updatedAt?: Timestamp;
 }
 
+// New schema for bulk candidate processing
+export interface FirebaseApplicant {
+  id?: string;
+  userId: string;
+  candidate: {
+    name: string;
+    email: string;
+    phone: string;
+    jobId: string;
+  };
+  parsed?: {
+    skills: string[];
+    resumeText?: string;
+  };
+  resumeUrl: string;
+  score?: number;
+  status:
+    | "queued"
+    | "processing"
+    | "completed"
+    | "shortlisted"
+    | "rejected"
+    | "failed";
+  reason?: string;
+  source: "hf-space" | "manual";
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+}
+
 export interface FirebaseNote {
   id?: string;
   resumeId: string;
   userId: string;
   note: string;
   createdAt?: Timestamp;
+}
+
+// Batch upload tracking
+export interface FirebaseBatchUpload {
+  id?: string;
+  userId: string;
+  fileName: string;
+  totalCandidates: number;
+  processed: number;
+  failed: number;
+  status: "processing" | "completed" | "failed";
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 }
 
 // User Operations
@@ -299,5 +343,181 @@ export const deleteNote = async (noteId: string): Promise<void> => {
   } catch (error) {
     console.error("Error deleting note:", error);
     throw new Error("Failed to delete note");
+  }
+};
+
+// Applicant Operations (Bulk Processing)
+export const createApplicant = async (
+  applicantData: Omit<FirebaseApplicant, "id" | "createdAt" | "updatedAt">,
+): Promise<string> => {
+  try {
+    // Use {jobId}_{email} as document ID for idempotency
+    const docId = `${applicantData.candidate.jobId}_${applicantData.candidate.email}`;
+    const docRef = doc(db, COLLECTIONS.APPLICANTS, docId);
+
+    await setDoc(docRef, {
+      ...applicantData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    return docId;
+  } catch (error) {
+    console.error("Error creating applicant:", error);
+    throw new Error("Failed to create applicant");
+  }
+};
+
+export const getApplicantsByJobId = async (
+  userId: string,
+  jobId: string,
+): Promise<FirebaseApplicant[]> => {
+  try {
+    const q = query(
+      collection(db, COLLECTIONS.APPLICANTS),
+      where("userId", "==", userId),
+      where("candidate.jobId", "==", jobId),
+      orderBy("createdAt", "desc"),
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as FirebaseApplicant[];
+  } catch (error) {
+    console.error("Error getting applicants:", error);
+    throw new Error("Failed to get applicants");
+  }
+};
+
+export const getApplicantsByUserId = async (
+  userId: string,
+): Promise<FirebaseApplicant[]> => {
+  try {
+    const q = query(
+      collection(db, COLLECTIONS.APPLICANTS),
+      where("userId", "==", userId),
+      orderBy("createdAt", "desc"),
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as FirebaseApplicant[];
+  } catch (error) {
+    console.error("Error getting applicants:", error);
+    throw new Error("Failed to get applicants");
+  }
+};
+
+export const getApplicantStats = async (userId: string, jobId?: string) => {
+  try {
+    const applicants = jobId
+      ? await getApplicantsByJobId(userId, jobId)
+      : await getApplicantsByUserId(userId);
+
+    const stats = {
+      total: applicants.length,
+      queued: applicants.filter((a) => a.status === "queued").length,
+      processing: applicants.filter((a) => a.status === "processing").length,
+      completed: applicants.filter((a) => a.status === "completed").length,
+      shortlisted: applicants.filter((a) => a.status === "shortlisted").length,
+      rejected: applicants.filter((a) => a.status === "rejected").length,
+      failed: applicants.filter((a) => a.status === "failed").length,
+    };
+
+    return stats;
+  } catch (error) {
+    console.error("Error getting applicant stats:", error);
+    throw new Error("Failed to get applicant stats");
+  }
+};
+
+export const updateApplicant = async (
+  applicantId: string,
+  applicantData: Partial<FirebaseApplicant>,
+): Promise<void> => {
+  try {
+    const docRef = doc(db, COLLECTIONS.APPLICANTS, applicantId);
+    await updateDoc(docRef, {
+      ...applicantData,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error updating applicant:", error);
+    throw new Error("Failed to update applicant");
+  }
+};
+
+export const deleteApplicant = async (applicantId: string): Promise<void> => {
+  try {
+    const docRef = doc(db, COLLECTIONS.APPLICANTS, applicantId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Error deleting applicant:", error);
+    throw new Error("Failed to delete applicant");
+  }
+};
+
+// Batch Upload Operations
+export const createBatchUpload = async (
+  batchData: Omit<FirebaseBatchUpload, "id" | "createdAt" | "updatedAt">,
+): Promise<string> => {
+  try {
+    const docRef = await addDoc(collection(db, COLLECTIONS.BATCH_UPLOADS), {
+      ...batchData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Error creating batch upload:", error);
+    throw new Error("Failed to create batch upload");
+  }
+};
+
+export const getBatchUploadById = async (
+  batchId: string,
+): Promise<FirebaseBatchUpload | null> => {
+  try {
+    const docRef = doc(db, COLLECTIONS.BATCH_UPLOADS, batchId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as FirebaseBatchUpload;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error getting batch upload:", error);
+    throw new Error("Failed to get batch upload");
+  }
+};
+
+export const updateBatchUpload = async (
+  batchId: string,
+  updates: Partial<FirebaseBatchUpload>,
+): Promise<void> => {
+  try {
+    const docRef = doc(db, COLLECTIONS.BATCH_UPLOADS, batchId);
+    await updateDoc(docRef, {
+      ...updates,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error updating batch upload:", error);
+    throw new Error("Failed to update batch upload");
+  }
+};
+
+export const getJobIds = async (userId: string): Promise<string[]> => {
+  try {
+    const applicants = await getApplicantsByUserId(userId);
+    const jobIds = [...new Set(applicants.map((a) => a.candidate.jobId))];
+    return jobIds;
+  } catch (error) {
+    console.error("Error getting job IDs:", error);
+    throw new Error("Failed to get job IDs");
   }
 };

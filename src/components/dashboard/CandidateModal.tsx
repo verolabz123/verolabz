@@ -29,8 +29,7 @@ interface Resume {
   fileUrl: string;
   skills: string;
   experienceYears: number;
-  atsScore: number;
-  status: string;
+  status: "accepted" | "rejected";
   aiReasoning?: string;
   createdAt: string;
 }
@@ -44,9 +43,8 @@ interface CandidateModalProps {
 }
 
 const statusColors: Record<string, string> = {
-  shortlisted: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
+  accepted: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
   rejected: "bg-red-500/15 text-red-600 border-red-500/30",
-  pending: "bg-amber-500/15 text-amber-600 border-amber-500/30",
 };
 
 export function CandidateModal({
@@ -85,20 +83,6 @@ export function CandidateModal({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* ATS Score */}
-          <div className="p-4 rounded-lg bg-[hsl(var(--muted))]/50">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-[hsl(var(--primary))]" />
-                <span className="font-medium">ATS Score</span>
-              </div>
-              <span className="text-2xl font-bold text-[hsl(var(--primary))]">
-                {resume.atsScore}%
-              </span>
-            </div>
-            <Progress value={resume.atsScore} className="h-2" />
-          </div>
-
           {/* Experience */}
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -149,20 +133,11 @@ export function CandidateModal({
             <Button
               variant="outline"
               className="flex-1 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
-              onClick={() => onStatusChange(resume.id, "shortlisted")}
-              disabled={isLoading || resume.status === "shortlisted"}
+              onClick={() => onStatusChange(resume.id, "accepted")}
+              disabled={isLoading || resume.status === "accepted"}
             >
               <UserCheck className="h-4 w-4 mr-2" />
-              Shortlist
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
-              onClick={() => onStatusChange(resume.id, "pending")}
-              disabled={isLoading || resume.status === "pending"}
-            >
-              <Clock className="h-4 w-4 mr-2" />
-              Pending
+              Accept
             </Button>
             <Button
               variant="outline"

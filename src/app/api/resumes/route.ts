@@ -31,9 +31,8 @@ export async function GET() {
         fileUrl: "/uploads/john_doe_resume.pdf",
         skills: "React, Node.js, TypeScript",
         experienceYears: 5,
-        atsScore: 85,
         aiReasoning: "Strong match for frontend roles.",
-        status: "shortlisted",
+        status: "accepted",
         createdAt: new Date().toISOString(),
       },
       {
@@ -43,9 +42,8 @@ export async function GET() {
         fileUrl: "/uploads/jane_smith_resume.docx",
         skills: "Python, Django, AWS",
         experienceYears: 3,
-        atsScore: 92,
         aiReasoning: "Excellent backend skills.",
-        status: "pending",
+        status: "rejected",
         createdAt: new Date(Date.now() - 86400000).toISOString(),
       },
     ];
@@ -112,9 +110,8 @@ export async function POST(request: Request) {
       fileUrl: mockFileUrl,
       skills: "JavaScript, HTML, CSS",
       experienceYears: 2,
-      atsScore: 75,
       aiReasoning: "Good potential but needs more experience.",
-      status: "pending",
+      status: "rejected",
       createdAt: new Date().toISOString(),
     };
 

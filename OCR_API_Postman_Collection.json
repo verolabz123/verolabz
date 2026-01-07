@@ -1,0 +1,276 @@
+{
+  "info": {
+    "name": "HR Automation - OCR API",
+    "description": "OCR (Optical Character Recognition) API for extracting text from resumes (PDFs and images).\n\nBase URL: http://localhost:3001/api/v1/ocr\n\nFeatures:\n- Extract text from PDFs and images\n- Parse resumes into structured data\n- Validate file formats\n- Health checks",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the OCR service is operational and ready to process documents.\n\nReturns:\n- Service status\n- Supported formats\n- OCR engine information\n- Maximum file size"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"operational\",\n    \"capabilities\": {\n      \"pdf\": true,\n      \"images\": true,\n      \"supportedFormats\": [\"PDF\", \"JPEG\", \"PNG\", \"GIF\", \"BMP\", \"TIFF\"],\n      \"ocrEngine\": \"Tesseract.js\",\n      \"maxFileSize\": \"10MB\"\n    },\n    \"message\": \"OCR service is ready to process documents\"\n  },\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Extract Text from Document",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": [],
+              "description": "Upload resume file (PDF, JPEG, PNG, etc.)"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/extract",
+          "host": ["{{base_url}}"],
+          "path": ["extract"]
+        },
+        "description": "Upload a resume document (PDF or image) and extract text.\n\nAccepts:\n- PDF documents (searchable and scanned)\n- Images (JPEG, PNG, GIF, BMP, TIFF)\n- Max file size: 10MB\n\nReturns:\n- Extracted text (cleaned)\n- Raw text (unprocessed)\n- File metadata\n- Processing time\n- Quality validation"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/resume.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/extract",
+              "host": ["{{base_url}}"],
+              "path": ["extract"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"text\": \"JOHN DOE\\nSoftware Engineer\\n\\nEXPERIENCE\\nSenior Developer at Tech Corp\\n2020-2023...\",\n    \"rawText\": \"JOHN DOE\\n\\n\\nSoftware Engineer\\n\\n\\n\\nEXPERIENCE...\",\n    \"metadata\": {\n      \"filename\": \"resume.pdf\",\n      \"mimetype\": \"application/pdf\",\n      \"size\": 245678,\n      \"characterCount\": 2543,\n      \"wordCount\": 456,\n      \"processingTime\": 1234,\n      \"validation\": {\n        \"valid\": true\n      }\n    }\n  },\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Extract and Parse Resume",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": [],
+              "description": "Upload resume file"
+            },
+            {
+              "key": "candidateName",
+              "value": "John Doe",
+              "type": "text",
+              "description": "Optional: Candidate's name"
+            },
+            {
+              "key": "candidateEmail",
+              "value": "john.doe@example.com",
+              "type": "text",
+              "description": "Optional: Candidate's email"
+            },
+            {
+              "key": "candidatePhone",
+              "value": "+1-234-567-8900",
+              "type": "text",
+              "description": "Optional: Candidate's phone"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/extract-and-parse",
+          "host": ["{{base_url}}"],
+          "path": ["extract-and-parse"]
+        },
+        "description": "Upload a resume, extract text using OCR, AND parse it into structured data.\n\nThis combines OCR extraction with AI-powered resume parsing in one request.\n\nReturns:\n- Extracted text\n- Parsed resume data:\n  - Name, email, phone\n  - Skills array\n  - Work experience\n  - Education\n  - Certifications\n  - Total years of experience"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/resume.pdf"
+                },
+                {
+                  "key": "candidateName",
+                  "value": "John Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "candidateEmail",
+                  "value": "john.doe@example.com",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/extract-and-parse",
+              "host": ["{{base_url}}"],
+              "path": ["extract-and-parse"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"extractedText\": \"JOHN DOE\\nSoftware Engineer\\n\\nEXPERIENCE...\",\n    \"parsedResume\": {\n      \"name\": \"John Doe\",\n      \"email\": \"john.doe@example.com\",\n      \"phone\": \"+1-234-567-8900\",\n      \"skills\": [\n        \"JavaScript\",\n        \"React\",\n        \"Node.js\",\n        \"Python\",\n        \"AWS\",\n        \"Docker\",\n        \"Kubernetes\"\n      ],\n      \"totalExperienceYears\": 5,\n      \"education\": [\n        {\n          \"degree\": \"Bachelor of Science\",\n          \"field\": \"Computer Science\",\n          \"institution\": \"University of California, Berkeley\",\n          \"year\": 2018\n        }\n      ],\n      \"certifications\": [\n        \"AWS Certified Solutions Architect\",\n        \"Google Cloud Professional Developer\"\n      ],\n      \"workExperience\": [\n        {\n          \"title\": \"Senior Software Engineer\",\n          \"company\": \"Tech Corp\",\n          \"duration\": \"2020-2023\",\n          \"description\": \"Led development of microservices...\"\n        }\n      ]\n    },\n    \"metadata\": {\n      \"filename\": \"resume.pdf\",\n      \"mimetype\": \"application/pdf\",\n      \"size\": 245678,\n      \"characterCount\": 2543,\n      \"processingTime\": 2345\n    }\n  },\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Validate File",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": [],
+              "description": "Upload file to validate"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/validate",
+          "host": ["{{base_url}}"],
+          "path": ["validate"]
+        },
+        "description": "Check if a file can be processed by the OCR service before uploading.\n\nValidates:\n- File format (PDF or supported image)\n- File size\n- File type detection\n\nReturns:\n- Can process (boolean)\n- File information\n- Detected type"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/resume.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/validate",
+              "host": ["{{base_url}}"],
+              "path": ["validate"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"canProcess\": true,\n    \"fileInfo\": {\n      \"filename\": \"resume.pdf\",\n      \"mimetype\": \"application/pdf\",\n      \"size\": 245678,\n      \"sizeKB\": \"239.92\",\n      \"sizeMB\": \"0.23\"\n    },\n    \"detection\": {\n      \"isPDF\": true,\n      \"isImage\": false,\n      \"detectedType\": \"PDF\"\n    }\n  },\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001/api/v1/ocr",
+      "type": "string"
+    }
+  ]
+}

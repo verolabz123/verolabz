@@ -37,25 +37,22 @@ import {
 interface DashboardStats {
   stats: {
     total: number;
-    shortlisted: number;
+    accepted: number;
     rejected: number;
-    pending: number;
   };
   chartData: { name: string; value: number }[];
   recentCandidates: {
     id: string;
     candidateName: string;
     skills: string;
-    atsScore: number;
-    status: string;
+    status: "accepted" | "rejected";
     createdAt: string;
   }[];
 }
 
 const statusColors: Record<string, string> = {
-  shortlisted: "bg-emerald-500/15 text-emerald-600",
+  accepted: "bg-emerald-500/15 text-emerald-600",
   rejected: "bg-red-500/15 text-red-600",
-  pending: "bg-amber-500/15 text-amber-600",
 };
 
 const workflowStatusColors: Record<string, string> = {
@@ -133,12 +130,12 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Shortlisted</CardTitle>
+            <CardTitle className="text-sm font-medium">Accepted</CardTitle>
             <UserCheck className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-600">
-              {stats.shortlisted}
+              {stats.accepted}
             </div>
             <p className="text-xs text-[hsl(var(--muted-foreground))]">
               Ready for interview
@@ -156,20 +153,6 @@ export default function DashboardPage() {
             </div>
             <p className="text-xs text-[hsl(var(--muted-foreground))]">
               Not matching criteria
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-amber-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-600">
-              {stats.pending}
-            </div>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              Awaiting review
             </p>
           </CardContent>
         </Card>
@@ -307,18 +290,9 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">ATS Score</span>
-                      <span className="text-lg font-bold text-[hsl(var(--primary))]">
-                        {candidate.atsScore}%
-                      </span>
-                    </div>
                     <p className="text-xs text-[hsl(var(--muted-foreground))]">
                       {formatDate(candidate.createdAt)}
                     </p>
-                  </div>
-                  <div className="w-20">
-                    <Progress value={candidate.atsScore} className="h-2" />
                   </div>
                 </div>
               ))}

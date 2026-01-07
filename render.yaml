@@ -1,0 +1,88 @@
+services:
+  # Backend API Service
+  # SETUP: Run 'node backend/extract-firebase-env.cjs' to get Firebase credentials
+  - type: web
+    name: hr-automation-backend
+    runtime: node
+    region: oregon
+    plan: starter
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: node dist/server.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: API_PREFIX
+        value: /api/v1
+
+      # AI API Keys (set in Render dashboard)
+      # Get GROQ_API_KEY from: https://console.groq.com/keys
+      # Get GEMINI_API_KEY from: https://aistudio.google.com/app/apikey
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+      # AI Model Configuration
+      - key: GROQ_MODEL
+        value: llama-3.1-70b-versatile
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash-exp
+
+      # CORS Configuration
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+      # Rate Limiting
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 200
+
+      # Firebase Configuration (set in Render dashboard)
+      # Run: node backend/extract-firebase-env.cjs
+      # Then copy the output values to Render Environment variables
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+
+      # Python Downloader Integration
+      - key: ENABLE_PYTHON_DOWNLOADER
+        value: true
+      - key: PYTHON_DOWNLOADER_URL
+        fromService:
+          type: web
+          name: hr-automation-python-downloader
+          property: host
+
+  # Python Cloud Downloader Service
+  - type: web
+    name: hr-automation-python-downloader
+    runtime: python
+    region: oregon
+    plan: starter
+    rootDir: python-downloader
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api_server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: HOST
+        value: 0.0.0.0
+      - key: ENVIRONMENT
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: "*"

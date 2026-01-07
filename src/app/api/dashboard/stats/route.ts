@@ -12,9 +12,8 @@ export async function GET() {
 
     // Mock stats
     const totalResumes = 42;
-    const shortlisted = 12;
-    const rejected = 5;
-    const pending = 25;
+    const accepted = 12;
+    const rejected = 30;
 
     // Mock chart data
     const chartData = [
@@ -33,40 +32,35 @@ export async function GET() {
         id: "1",
         candidateName: "John Doe",
         skills: "React, Node.js, TypeScript",
-        atsScore: 85,
-        status: "shortlisted",
+        status: "accepted",
         createdAt: new Date().toISOString(),
       },
       {
         id: "2",
         candidateName: "Jane Smith",
         skills: "Python, Django, AWS",
-        atsScore: 92,
-        status: "pending",
+        status: "rejected",
         createdAt: new Date(Date.now() - 86400000).toISOString(),
       },
       {
         id: "3",
         candidateName: "Alice Johnson",
         skills: "Java, Spring Boot, SQL",
-        atsScore: 78,
-        status: "rejected",
+        status: "accepted",
         createdAt: new Date(Date.now() - 172800000).toISOString(),
       },
       {
         id: "4",
         candidateName: "Bob Brown",
         skills: "C++, Qt, Embedded",
-        atsScore: 65,
-        status: "pending",
+        status: "rejected",
         createdAt: new Date(Date.now() - 259200000).toISOString(),
       },
       {
         id: "5",
         candidateName: "Charlie Davis",
         skills: "Go, Kubernetes, Docker",
-        atsScore: 88,
-        status: "shortlisted",
+        status: "accepted",
         createdAt: new Date(Date.now() - 345600000).toISOString(),
       },
     ];
@@ -74,9 +68,8 @@ export async function GET() {
     return NextResponse.json({
       stats: {
         total: totalResumes,
-        shortlisted,
+        accepted,
         rejected,
-        pending,
       },
       chartData,
       recentCandidates,

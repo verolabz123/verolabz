@@ -14,6 +14,8 @@ import RegisterPage from "@/pages/auth/RegisterPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 import DashboardPage from "@/pages/dashboard/DashboardPage";
 import UploadsPage from "@/pages/dashboard/UploadsPage";
+import BulkUploadPage from "@/pages/dashboard/BulkUploadPage";
+import CandidatesPage from "@/pages/dashboard/CandidatesPage";
 import ProfilePage from "@/pages/dashboard/ProfilePage";
 import BillingPage from "@/pages/dashboard/BillingPage";
 
@@ -51,6 +53,8 @@ function App() {
             >
               <Route index element={<DashboardPage />} />
               <Route path="uploads" element={<UploadsPage />} />
+              <Route path="bulk-upload" element={<BulkUploadPage />} />
+              <Route path="candidates" element={<CandidatesPage />} />
               <Route path="settings/profile" element={<ProfilePage />} />
               <Route path="settings/billing" element={<BillingPage />} />
             </Route>

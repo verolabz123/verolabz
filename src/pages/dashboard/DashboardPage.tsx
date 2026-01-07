@@ -18,7 +18,6 @@ import {
   Clock,
   ArrowUpRight,
   Upload,
-  Workflow,
   RefreshCw,
 } from "lucide-react";
 import {
@@ -61,12 +60,6 @@ const statusColors: Record<string, string> = {
   pending: "bg-amber-500/15 text-amber-600",
 };
 
-const workflowStatusColors: Record<string, string> = {
-  connected: "bg-emerald-500/15 text-emerald-600",
-  pending: "bg-amber-500/15 text-amber-600",
-  not_configured: "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]",
-};
-
 // Helper function to generate chart data from resumes
 const generateChartData = (resumes: FirebaseResume[]) => {
   const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -92,13 +85,6 @@ const generateChartData = (resumes: FirebaseResume[]) => {
 
   return last7Days.map(({ name, value }) => ({ name, value }));
 };
-
-const workflowStatuses = [
-  { name: "Email Workflow", status: "not_configured" },
-  { name: "Slack Workflow", status: "pending" },
-  { name: "Calendar Workflow", status: "pending" },
-  { name: "SMS Workflow", status: "not_configured" },
-];
 
 function formatDate(dateString: string) {
   const date = new Date(dateString);
@@ -272,80 +258,47 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Chart */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Resumes Processed</CardTitle>
-            <CardDescription>Last 7 days activity</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="h-[300px] flex items-center justify-center">
-                <RefreshCw className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data?.chartData || []}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                  />
-                  <XAxis
-                    dataKey="name"
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                  />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--popover))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Bar
-                    dataKey="value"
-                    fill="hsl(var(--primary))"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Workflow Status */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Workflow Status</CardTitle>
-              <Workflow className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+      {/* Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Resumes Processed</CardTitle>
+          <CardDescription>Last 7 days activity</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <RefreshCw className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
             </div>
-            <CardDescription>Automation pipeline status</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {workflowStatuses.map((workflow, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between p-3 rounded-lg bg-[hsl(var(--muted))]/50"
-              >
-                <span className="text-sm font-medium">
-                  {workflow.name.replace(" Workflow", "")}
-                </span>
-                <Badge className={workflowStatusColors[workflow.status]}>
-                  {workflow.status === "connected" && "Connected"}
-                  {workflow.status === "pending" && "Coming Soon"}
-                  {workflow.status === "not_configured" && "Not Set"}
-                </Badge>
-              </div>
-            ))}
-            <p className="text-xs text-center text-[hsl(var(--muted-foreground))] pt-2">
-              Workflow automation coming soon
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data?.chartData || []}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="hsl(var(--border))"
+                />
+                <XAxis
+                  dataKey="name"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--popover))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Bar
+                  dataKey="value"
+                  fill="hsl(var(--primary))"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recent Candidates */}
       <Card>
