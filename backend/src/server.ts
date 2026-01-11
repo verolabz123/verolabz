@@ -48,6 +48,8 @@ app.use(
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
   "http://localhost:5173",
   "http://localhost:3000",
+  "https://verolabz1.vercel.app",
+  "https://verolabz.onrender.com"
 ];
 
 app.use(
