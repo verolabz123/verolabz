@@ -196,7 +196,7 @@ router.get(
         total: dayResumes.length,
         accepted,
         rejected,
-        pending: dayResumes.length - shortlisted - rejected,
+        pending: dayResumes.length - accepted - rejected,
       });
     }
 
@@ -243,11 +243,11 @@ router.get(
     const avgProcessingTime =
       processingTimes.length > 0
         ? Math.round(
-            processingTimes.reduce(
-              (sum: number, time: number) => sum + time,
-              0,
-            ) / processingTimes.length,
-          )
+          processingTimes.reduce(
+            (sum: number, time: number) => sum + time,
+            0,
+          ) / processingTimes.length,
+        )
         : 0;
 
     res.status(200).json({
@@ -316,7 +316,7 @@ router.get(
       insights.push({
         type: "success",
         title: "High-Quality Candidates",
-        message: `You have ${highQualityCandidates.length} candidates with scores above 80. Consider prioritizing these for interviews.`,
+        message: `You have ${acceptedCandidates.length} accepted candidates. Consider prioritizing these for interviews.`,
         action: "Review High Scorers",
         priority: "high",
       });
