@@ -4,7 +4,7 @@
  */
 
 // Backend API Configuration
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://verolabz.onrender.com";
 const API_BASE = `${BACKEND_URL}/api/v1`;
 
 export interface CandidateEvaluationRequest {

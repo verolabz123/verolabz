@@ -6,7 +6,7 @@
 
 // Configuration - Use backend by default if available
 const USE_BACKEND = import.meta.env.VITE_USE_BACKEND !== "false"; // Default to true
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://verolabz.onrender.com";
 
 // HF Space URL - FastAPI endpoint (fallback)
 const HF_SPACE_URL = "https://omgy-resume.hf.space";
