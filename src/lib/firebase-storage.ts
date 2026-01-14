@@ -7,6 +7,7 @@ import {
   UploadResult,
 } from "firebase/storage";
 import { storage } from "./firebase";
+import { storageLogger } from "./logger";
 
 /**
  * Firebase Storage Service
@@ -52,14 +53,14 @@ export const uploadResumeFile = async (
     // Get the download URL
     const downloadURL = await getDownloadURL(uploadResult.ref);
 
-    console.log(`[Firebase Storage] Uploaded file: ${filePath}`);
+    storageLogger.info(`Uploaded file: ${filePath}`);
 
     return {
       url: downloadURL,
       path: filePath,
     };
   } catch (error) {
-    console.error("[Firebase Storage] Upload error:", error);
+    storageLogger.error("Upload error", error);
     throw new Error("Failed to upload file to storage");
   }
 };
@@ -72,9 +73,9 @@ export const deleteResumeFile = async (filePath: string): Promise<void> => {
   try {
     const storageRef = ref(storage, filePath);
     await deleteObject(storageRef);
-    console.log(`[Firebase Storage] Deleted file: ${filePath}`);
+    storageLogger.info(`Deleted file: ${filePath}`);
   } catch (error) {
-    console.error("[Firebase Storage] Delete error:", error);
+    storageLogger.error("Delete error", error);
     throw new Error("Failed to delete file from storage");
   }
 };
@@ -92,7 +93,7 @@ export const getFileDownloadURL = async (
     const url = await getDownloadURL(storageRef);
     return url;
   } catch (error) {
-    console.error("[Firebase Storage] Get URL error:", error);
+    storageLogger.error("Get URL error", error);
     throw new Error("Failed to get file download URL");
   }
 };
@@ -112,13 +113,11 @@ export const listUserFiles = async (userId: string): Promise<string[]> => {
 
     const filePaths = result.items.map((itemRef) => itemRef.fullPath);
 
-    console.log(
-      `[Firebase Storage] Listed ${filePaths.length} files for user: ${userId}`,
-    );
+    storageLogger.info(`Listed ${filePaths.length} files for user: ${userId}`);
 
     return filePaths;
   } catch (error) {
-    console.error("[Firebase Storage] List files error:", error);
+    storageLogger.error("List files error", error);
     throw new Error("Failed to list user files");
   }
 };
@@ -178,11 +177,9 @@ export const deleteAllUserFiles = async (userId: string): Promise<void> => {
 
     await Promise.all(deletePromises);
 
-    console.log(
-      `[Firebase Storage] Deleted all files for user: ${userId}`,
-    );
+    storageLogger.info(`Deleted all files for user: ${userId}`);
   } catch (error) {
-    console.error("[Firebase Storage] Delete all files error:", error);
+    storageLogger.error("Delete all files error", error);
     throw new Error("Failed to delete all user files");
   }
 };

@@ -16,6 +16,7 @@ import {
   reauthenticateWithCredential,
 } from "firebase/auth";
 import { auth } from "./firebase";
+import { authLogger } from "./logger";
 
 /**
  * Sign out the current user
@@ -23,9 +24,9 @@ import { auth } from "./firebase";
 export const signOut = async (): Promise<void> => {
   try {
     await firebaseSignOut(auth);
-    console.log("[Firebase Auth] User signed out successfully");
+    authLogger.info("User signed out successfully");
   } catch (error) {
-    console.error("[Firebase Auth] Sign out error:", error);
+    authLogger.error("Sign out error", error);
     throw new Error("Failed to sign out");
   }
 };
@@ -64,9 +65,9 @@ export const isAuthenticated = (): boolean => {
 export const sendPasswordReset = async (email: string): Promise<void> => {
   try {
     await sendPasswordResetEmail(auth, email);
-    console.log("[Firebase Auth] Password reset email sent to:", email);
+    authLogger.info(`Password reset email sent to: ${email}`);
   } catch (error: unknown) {
-    console.error("[Firebase Auth] Password reset error:", error);
+    authLogger.error("Password reset error", error);
 
     if (error && typeof error === "object" && "code" in error) {
       const firebaseError = error as { code: string };
@@ -94,9 +95,9 @@ export const changePassword = async (newPassword: string): Promise<void> => {
     }
 
     await updatePassword(user, newPassword);
-    console.log("[Firebase Auth] Password updated successfully");
+    authLogger.info("Password updated successfully");
   } catch (error: unknown) {
-    console.error("[Firebase Auth] Password update error:", error);
+    authLogger.error("Password update error", error);
 
     if (error && typeof error === "object" && "code" in error) {
       const firebaseError = error as { code: string };
@@ -124,9 +125,9 @@ export const changeEmail = async (newEmail: string): Promise<void> => {
     }
 
     await updateEmail(user, newEmail);
-    console.log("[Firebase Auth] Email updated successfully");
+    authLogger.info("Email updated successfully");
   } catch (error: unknown) {
-    console.error("[Firebase Auth] Email update error:", error);
+    authLogger.error("Email update error", error);
 
     if (error && typeof error === "object" && "code" in error) {
       const firebaseError = error as { code: string };
@@ -165,9 +166,9 @@ export const updateUserProfile = async (
       photoURL: photoURL || user.photoURL,
     });
 
-    console.log("[Firebase Auth] Profile updated successfully");
+    authLogger.info("Profile updated successfully");
   } catch (error) {
-    console.error("[Firebase Auth] Profile update error:", error);
+    authLogger.error("Profile update error", error);
     throw new Error("Failed to update profile");
   }
 };
@@ -191,9 +192,9 @@ export const reauthenticate = async (
     const credential = EmailAuthProvider.credential(email, password);
     await reauthenticateWithCredential(user, credential);
 
-    console.log("[Firebase Auth] User reauthenticated successfully");
+    authLogger.info("User reauthenticated successfully");
   } catch (error: unknown) {
-    console.error("[Firebase Auth] Reauthentication error:", error);
+    authLogger.error("Reauthentication error", error);
 
     if (error && typeof error === "object" && "code" in error) {
       const firebaseError = error as { code: string };
@@ -221,9 +222,9 @@ export const deleteUserAccount = async (): Promise<void> => {
     }
 
     await deleteUser(user);
-    console.log("[Firebase Auth] User account deleted successfully");
+    authLogger.info("User account deleted successfully");
   } catch (error: unknown) {
-    console.error("[Firebase Auth] Account deletion error:", error);
+    authLogger.error("Account deletion error", error);
 
     if (error && typeof error === "object" && "code" in error) {
       const firebaseError = error as { code: string };
@@ -255,7 +256,7 @@ export const getIdToken = async (
     const token = await user.getIdToken(forceRefresh);
     return token;
   } catch (error) {
-    console.error("[Firebase Auth] Get token error:", error);
+    authLogger.error("Get token error", error);
     return null;
   }
 };

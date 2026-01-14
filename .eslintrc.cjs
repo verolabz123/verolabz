@@ -16,5 +16,9 @@ module.exports = {
     ],
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'react-hooks/exhaustive-deps': 'warn',
+    'no-debugger': 'error',
+    'no-alert': 'warn',
   },
 }
