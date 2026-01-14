@@ -317,8 +317,14 @@ export function validateExcelRow(
     errors.push(`Row ${rowIndex}: Invalid email format`);
   }
 
-  if (!row.phone || typeof row.phone !== "string" || !row.phone.trim()) {
-    errors.push(`Row ${rowIndex}: Missing or invalid 'phone'`);
+  // Phone can be string or number from Excel - convert to string
+  if (!row.phone && row.phone !== 0) {
+    errors.push(`Row ${rowIndex}: Missing 'phone'`);
+  } else {
+    const phoneStr = String(row.phone).trim();
+    if (!phoneStr || phoneStr === 'undefined' || phoneStr === 'null') {
+      errors.push(`Row ${rowIndex}: Invalid 'phone'`);
+    }
   }
 
   if (!row.jobId || typeof row.jobId !== "string" || !row.jobId.trim()) {
@@ -345,7 +351,7 @@ export function validateExcelRow(
     data: {
       name: row.name.trim(),
       email: row.email.trim().toLowerCase(),
-      phone: row.phone.trim(),
+      phone: String(row.phone).trim(), // Convert to string
       jobId: row.jobId.trim(),
       resume_url: row.resume_url.trim(),
     },
