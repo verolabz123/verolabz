@@ -39,7 +39,7 @@ import { toast } from "@/components/ui/use-toast";
 interface DashboardStats {
   stats: {
     total: number;
-    shortlisted: number;
+    accepted: number;
     rejected: number;
     pending: number;
   };
@@ -56,6 +56,7 @@ interface DashboardStats {
 
 const statusColors: Record<string, string> = {
   shortlisted: "bg-emerald-500/15 text-emerald-600",
+  accepted: "bg-emerald-500/15 text-emerald-600",
   rejected: "bg-red-500/15 text-red-600",
   pending: "bg-amber-500/15 text-amber-600",
 };
@@ -127,7 +128,7 @@ export default function DashboardPage() {
       const applicantStats = await getApplicantStats(user.uid);
       const combinedStats = {
         total: resumeStats.total + applicants.length,
-        shortlisted: resumeStats.shortlisted + applicantStats.shortlisted,
+        accepted: resumeStats.shortlisted + applicantStats.shortlisted,
         rejected: resumeStats.rejected + applicantStats.rejected,
         pending: resumeStats.pending + applicantStats.completed + applicantStats.queued + applicantStats.processing,
       };
@@ -168,7 +169,7 @@ export default function DashboardPage() {
       });
       // Set empty data on error
       setData({
-        stats: { total: 0, shortlisted: 0, rejected: 0, pending: 0 },
+        stats: { total: 0, accepted: 0, rejected: 0, pending: 0 },
         chartData: [],
         recentCandidates: [],
       });
@@ -184,7 +185,7 @@ export default function DashboardPage() {
 
   const stats = data?.stats || {
     total: 0,
-    shortlisted: 0,
+    accepted: 0,
     rejected: 0,
     pending: 0,
   };
@@ -228,12 +229,12 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Shortlisted</CardTitle>
+            <CardTitle className="text-sm font-medium">Accepted</CardTitle>
             <UserCheck className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-600">
-              {stats.shortlisted}
+              {stats.accepted}
             </div>
             <p className="text-xs text-[hsl(var(--muted-foreground))]">
               Ready for interview
@@ -371,6 +372,77 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">ATS Score</span>
                       <span className="text-lg font-bold text-[hsl(var(--primary))]">
+                        {candidate.atsScore}%
+                      </span>
+                    </div>
+                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                      {formatDate(candidate.createdAt)}
+                    </p>
+                  </div>
+                  <div className="w-20">
+                    <Progress value={candidate.atsScore} className="h-2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Accepted Candidates */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Accepted Candidates</CardTitle>
+              <CardDescription>Candidates ready for interview</CardDescription>
+            </div>
+            <Link to="/dashboard/candidates">
+              <Button variant="outline" size="sm">
+                View All
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="h-[200px] flex items-center justify-center">
+              <RefreshCw className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
+            </div>
+          ) : stats.accepted === 0 ? (
+            <div className="text-center py-12">
+              <UserCheck className="h-12 w-12 mx-auto text-[hsl(var(--muted-foreground))] mb-4" />
+              <h3 className="font-semibold mb-2">No accepted candidates yet</h3>
+              <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">
+                Accepted candidates will appear here
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {data?.recentCandidates?.filter(c => c.status === 'shortlisted' || c.status === 'accepted').slice(0, 5).map((candidate) => (
+                <div
+                  key={candidate.id}
+                  className="flex items-center gap-4 p-4 rounded-lg border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="h-4 w-4 text-emerald-600" />
+                      <span className="font-medium">
+                        {candidate.candidateName}
+                      </span>
+                      <Badge className="bg-emerald-500/15 text-emerald-600">
+                        Accepted
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-[hsl(var(--muted-foreground))] truncate mt-1">
+                      {candidate.skills.split(",").slice(0, 3).join(", ")}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">ATS Score</span>
+                      <span className="text-lg font-bold text-emerald-600">
                         {candidate.atsScore}%
                       </span>
                     </div>
