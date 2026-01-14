@@ -114,11 +114,23 @@ export default function DashboardPage() {
 
     setIsLoading(true);
     try {
-      // Fetch real data from Firebase
-      const [stats, resumes] = await Promise.all([
+      // Fetch data from both resumes and applicants collections
+      const { getApplicantsByUserId, getApplicantStats } = await import('@/lib/firebase-db');
+
+      const [resumeStats, resumes, applicants] = await Promise.all([
         getResumeStats(user.uid),
         getResumesByUserId(user.uid),
+        getApplicantsByUserId(user.uid),
       ]);
+
+      // Combine stats from both collections
+      const applicantStats = await getApplicantStats(user.uid);
+      const combinedStats = {
+        total: resumeStats.total + applicants.length,
+        shortlisted: resumeStats.shortlisted + applicantStats.shortlisted,
+        rejected: resumeStats.rejected + applicantStats.rejected,
+        pending: resumeStats.pending + applicantStats.completed + applicantStats.queued + applicantStats.processing,
+      };
 
       // Sort resumes by creation date (newest first)
       const sortedResumes = resumes.sort((a, b) => {
@@ -127,8 +139,8 @@ export default function DashboardPage() {
         return dateB.getTime() - dateA.getTime();
       });
 
-      // Get recent candidates (top 4)
-      const recentCandidates = sortedResumes.slice(0, 4).map((resume) => ({
+      // Get recent candidates from resumes (top 4)
+      const recentFromResumes = sortedResumes.slice(0, 4).map((resume) => ({
         id: resume.id || "",
         candidateName: resume.candidateName,
         skills: resume.skills,
@@ -139,13 +151,13 @@ export default function DashboardPage() {
           new Date().toISOString(),
       }));
 
-      // Generate chart data
+      // Generate chart data combining both sources
       const chartData = generateChartData(resumes);
 
       setData({
-        stats,
+        stats: combinedStats,
         chartData,
-        recentCandidates,
+        recentCandidates: recentFromResumes,
       });
     } catch (error) {
       console.error("Failed to fetch dashboard stats:", error);
