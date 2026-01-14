@@ -220,7 +220,7 @@ export default function DashboardPage() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Link to="/dashboard/uploads">
+          <Link to="/dashboard/bulk-upload">
             <Button size="sm">
               <Upload className="h-4 w-4 mr-2" />
               Upload Resume
@@ -295,7 +295,7 @@ export default function DashboardPage() {
               <CardTitle>Recent Candidates</CardTitle>
               <CardDescription>Latest uploaded resumes</CardDescription>
             </div>
-            <Link to="/dashboard/uploads">
+            <Link to="/dashboard/candidates">
               <Button variant="outline" size="sm">
                 View All
                 <ArrowUpRight className="ml-2 h-4 w-4" />
@@ -315,7 +315,7 @@ export default function DashboardPage() {
               <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">
                 Upload your first resume to get started
               </p>
-              <Link to="/dashboard/uploads">
+              <Link to="/dashboard/bulk-upload">
                 <Button>
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Resume

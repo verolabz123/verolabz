@@ -23,6 +23,7 @@ import dashboardRoutes from "./routes/dashboard.routes.js";
 import resumeRoutes from "./routes/resume.routes.js";
 import enhancedEvaluationRoutes from "./routes/enhanced-evaluation.routes.js";
 import ocrRoutes from "./routes/ocr.routes.js";
+import emailRoutes from "./routes/email.routes.js";
 
 // Constants
 const PORT = parseInt(process.env.PORT || "3001", 10);
@@ -103,6 +104,7 @@ app.use(`${API_PREFIX}/evaluation`, evaluationRoutes);
 app.use(`${API_PREFIX}/enhanced-evaluation`, enhancedEvaluationRoutes);
 app.use(`${API_PREFIX}/bulk`, bulkUploadRoutes);
 app.use(`${API_PREFIX}/ocr`, ocrRoutes);
+app.use(`${API_PREFIX}/email`, emailRoutes);
 
 // Root endpoint
 app.get("/", (req: Request, res: Response) => {
@@ -124,6 +126,7 @@ app.get("/", (req: Request, res: Response) => {
       enhancedEvaluation: `${API_PREFIX}/enhanced-evaluation`,
       bulk: `${API_PREFIX}/bulk`,
       ocr: `${API_PREFIX}/ocr`,
+      email: `${API_PREFIX}/email`,
     },
   });
 });

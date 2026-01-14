@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import {
   Briefcase,
   LayoutDashboard,
-  Upload,
   Users,
   User,
   CreditCard,
@@ -16,15 +15,14 @@ const navigation: Array<{
   icon: any;
   disabled?: boolean;
 }> = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Single Upload", href: "/dashboard/uploads", icon: Upload },
-  {
-    name: "Bulk Upload",
-    href: "/dashboard/bulk-upload",
-    icon: FileSpreadsheet,
-  },
-  { name: "Candidates", href: "/dashboard/candidates", icon: Users },
-];
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    {
+      name: "Bulk Upload",
+      href: "/dashboard/bulk-upload",
+      icon: FileSpreadsheet,
+    },
+    { name: "Candidates", href: "/dashboard/candidates", icon: Users },
+  ];
 
 const settingsNavigation = [
   { name: "Profile", href: "/dashboard/settings/profile", icon: User },
