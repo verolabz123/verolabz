@@ -74,6 +74,7 @@ export interface FirebaseApplicant {
   | "processing"
   | "completed"
   | "shortlisted"
+  | "accepted"
   | "rejected"
   | "failed";
   reason?: string;
