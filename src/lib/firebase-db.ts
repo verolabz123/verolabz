@@ -425,7 +425,8 @@ export const getApplicantStats = async (userId: string, jobId?: string) => {
       queued: applicants.filter((a) => a.status === "queued").length,
       processing: applicants.filter((a) => a.status === "processing").length,
       completed: applicants.filter((a) => a.status === "completed").length,
-      shortlisted: applicants.filter((a) => a.status === "shortlisted").length,
+      // Count both "shortlisted" and "accepted" as accepted candidates
+      shortlisted: applicants.filter((a) => a.status === "shortlisted" || a.status === "accepted").length,
       rejected: applicants.filter((a) => a.status === "rejected").length,
       failed: applicants.filter((a) => a.status === "failed").length,
     };
