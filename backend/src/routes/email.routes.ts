@@ -3,7 +3,7 @@ import {
     emailService,
     type CandidateEmailData,
     type CompanyInfo,
-} from '../services/EmailService';
+} from '../services/EmailService.js';
 
 const router = express.Router();
 
