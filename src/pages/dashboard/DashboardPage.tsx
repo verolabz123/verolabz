@@ -21,15 +21,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import {
   getResumesByUserId,
   getResumeStats,
   type FirebaseResume,
