@@ -494,7 +494,13 @@ async function uploadExcelToBackend(
     const arrayBuffer = await file.arrayBuffer();
     const workbook = XLSX.read(arrayBuffer, { type: "array" });
     const sheetName = workbook.SheetNames[0];
+    if (!sheetName) {
+      throw new Error("Excel file has no sheets");
+    }
     const worksheet = workbook.Sheets[sheetName];
+    if (!worksheet) {
+      throw new Error("Failed to read worksheet");
+    }
     const data = XLSX.utils.sheet_to_json(worksheet);
 
     onProgress?.(10);

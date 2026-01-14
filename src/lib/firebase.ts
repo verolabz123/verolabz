@@ -34,7 +34,11 @@ if (!getApps().length) {
     analytics = getAnalytics(app);
   }
 } else {
-  app = getApps()[0];
+  const existingApp = getApps()[0];
+  if (!existingApp) {
+    throw new Error("Failed to initialize Firebase - no existing app found");
+  }
+  app = existingApp;
   auth = getAuth(app);
   db = getFirestore(app);
   storage = getStorage(app);

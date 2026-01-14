@@ -70,12 +70,12 @@ export interface FirebaseApplicant {
   resumeUrl: string;
   score?: number;
   status:
-    | "queued"
-    | "processing"
-    | "completed"
-    | "shortlisted"
-    | "rejected"
-    | "failed";
+  | "queued"
+  | "processing"
+  | "completed"
+  | "shortlisted"
+  | "rejected"
+  | "failed";
   reason?: string;
   source: "hf-space" | "manual";
   createdAt?: Timestamp;
@@ -162,8 +162,10 @@ export const getUserByEmail = async (
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-      const doc = querySnapshot.docs[0];
-      return { id: doc.id, ...doc.data() } as FirebaseUser;
+      const firstDoc = querySnapshot.docs[0];
+      if (firstDoc) {
+        return { id: firstDoc.id, ...firstDoc.data() } as FirebaseUser;
+      }
     }
     return null;
   } catch (error) {

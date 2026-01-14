@@ -97,7 +97,7 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Badge variant={planInfo.variant}>{planInfo.label}</Badge>
+        <Badge variant={planInfo?.variant || "secondary"}>{planInfo?.label || "Free Trial"}</Badge>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

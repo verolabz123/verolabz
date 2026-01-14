@@ -60,6 +60,12 @@ export async function parseExcelFile(file: File): Promise<ExcelParseResult> {
     }
 
     const worksheet = workbook.Sheets[firstSheetName];
+    if (!worksheet) {
+      return {
+        success: false,
+        error: "Failed to read worksheet",
+      };
+    }
 
     // Convert to JSON
     const jsonData = XLSX.utils.sheet_to_json(worksheet, {
@@ -135,6 +141,10 @@ export async function validateExcelStructure(
     }
 
     const worksheet = workbook.Sheets[firstSheetName];
+    if (!worksheet) {
+      return { valid: false, error: "Failed to read worksheet" };
+    }
+
     const headers = XLSX.utils.sheet_to_json(worksheet, {
       header: 1,
     })[0] as string[];
@@ -153,7 +163,11 @@ export async function validateExcelStructure(
     }
 
     // Get total row count
-    const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+    const rangeRef = worksheet["!ref"];
+    if (!rangeRef) {
+      return { valid: true, rowCount: 0 };
+    }
+    const range = XLSX.utils.decode_range(rangeRef);
     const rowCount = range.e.r; // End row (0-indexed)
 
     return { valid: true, rowCount };

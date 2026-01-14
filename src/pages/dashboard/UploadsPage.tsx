@@ -110,8 +110,10 @@ export default function UploadsPage() {
     // Process each file
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
-      const fileId = newFiles[i].id;
-      await processFile(file, fileId);
+      const fileInfo = newFiles[i];
+      if (file && fileInfo) {
+        await processFile(file, fileInfo.id);
+      }
     }
   };
 
@@ -163,13 +165,13 @@ export default function UploadsPage() {
         prev.map((f) =>
           f.id === fileId
             ? {
-                ...f,
-                progress: 100,
-                status: "completed" as const,
-                candidateName: parsedData.candidateName,
-                atsScore: parsedData.atsScore,
-                skills: parsedData.skills.slice(0, 3),
-              }
+              ...f,
+              progress: 100,
+              status: "completed" as const,
+              candidateName: parsedData.candidateName,
+              atsScore: parsedData.atsScore,
+              skills: parsedData.skills.slice(0, 3),
+            }
             : f,
         ),
       );
@@ -187,10 +189,10 @@ export default function UploadsPage() {
         prev.map((f) =>
           f.id === fileId
             ? {
-                ...f,
-                status: "failed" as const,
-                error: error instanceof Error ? error.message : "Upload failed",
-              }
+              ...f,
+              status: "failed" as const,
+              error: error instanceof Error ? error.message : "Upload failed",
+            }
             : f,
         ),
       );
@@ -307,9 +309,8 @@ export default function UploadsPage() {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-              isDragging ? "border-primary bg-primary/5" : "border-border"
-            }`}
+            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-border"
+              }`}
           >
             <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">
