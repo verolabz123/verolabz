@@ -35,7 +35,6 @@ import { toast } from "@/components/ui/use-toast";
 import {
     getResumesByUserId,
     updateResume,
-    getUserProfile,
     type FirebaseResume,
 } from "@/lib/firebase-db";
 import { sendBulkEmails, type CandidateEmailData, type CompanyInfo } from "@/lib/email-api";
@@ -129,17 +128,14 @@ export default function CandidateManagementPage() {
         setIsSendingEmails(true);
 
         try {
-            // Get user profile for company info
+            // Get user info
             if (!user) throw new Error("User not authenticated");
 
-            const userProfile = await getUserProfile(user.uid);
-
-            // Prepare company info
+            // Prepare company info using user data
             const companyInfo: CompanyInfo = {
-                companyName: userProfile?.companyName || "Your Company",
-                hrName: userProfile?.name || user.displayName || "HR Team",
-                hrEmail: userProfile?.email || user.email || "hr@company.com",
-                companyWebsite: userProfile?.companyWebsite,
+                companyName: "Verolabz",
+                hrName: user.displayName || "HR Team",
+                hrEmail: user.email || "hr@verolabz.com",
             };
 
             // Prepare candidate email data
@@ -149,10 +145,13 @@ export default function CandidateManagementPage() {
                 jobRole: "Software Developer", // TODO: Add jobRole field to resume
             }));
 
+            // Map "accepted"/"rejected" to "acceptance"/"rejection"
+            const emailType: "acceptance" | "rejection" = type === "accepted" ? "acceptance" : "rejection";
+
             // Send bulk emails
             const result = await sendBulkEmails(
                 candidateEmails,
-                type,
+                emailType,
                 companyInfo
             );
 
