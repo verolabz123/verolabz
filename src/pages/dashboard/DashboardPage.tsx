@@ -124,14 +124,32 @@ export default function DashboardPage() {
         getApplicantsByUserId(user.uid),
       ]);
 
+      // DEBUG: Log what we fetched
+      console.log('=== DASHBOARD DEBUG ===');
+      console.log('Resume stats:', resumeStats);
+      console.log('Total resumes:', resumes.length);
+      console.log('Total applicants:', applicants.length);
+
+      // Log applicant statuses
+      const applicantStatusCounts = applicants.reduce((acc: any, a) => {
+        acc[a.status] = (acc[a.status] || 0) + 1;
+        return acc;
+      }, {});
+      console.log('Applicant status breakdown:', applicantStatusCounts);
+
       // Combine stats from both collections
       const applicantStats = await getApplicantStats(user.uid);
+      console.log('Applicant stats:', applicantStats);
+
       const combinedStats = {
         total: resumeStats.total + applicants.length,
         accepted: resumeStats.shortlisted + applicantStats.shortlisted,
         rejected: resumeStats.rejected + applicantStats.rejected,
         pending: resumeStats.pending + applicantStats.completed + applicantStats.queued + applicantStats.processing,
       };
+
+      console.log('Combined stats:', combinedStats);
+      console.log('=== END DEBUG ===');
 
       // Sort resumes by creation date (newest first)
       const sortedResumes = resumes.sort((a, b) => {
