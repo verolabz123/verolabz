@@ -3,120 +3,158 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export interface CandidateEmailData {
-    name: string;
-    email: string;
-    jobRole: string;
+  name: string;
+  email: string;
+  jobRole: string;
 }
 
 export interface CompanyInfo {
-    companyName: string;
-    hrName: string;
-    hrEmail: string;
-    companyWebsite?: string;
+  companyName: string;
+  hrName: string;
+  hrEmail: string;
+  companyWebsite?: string;
 }
 
 class EmailService {
-    /**
-     * Send acceptance email to a single candidate
-     */
-    async sendAcceptanceEmail(
-        candidate: CandidateEmailData,
-        companyInfo: CompanyInfo
-    ): Promise<{ success: boolean; error?: string }> {
-        try {
-            const emailHtml = this.generateAcceptanceEmailHTML(candidate, companyInfo);
+  /**
+   * Send acceptance email to a single candidate
+   */
+  async sendAcceptanceEmail(
+    candidate: CandidateEmailData,
+    companyInfo: CompanyInfo
+  ): Promise<{ success: boolean; error?: string }> {
+    console.log(`[EMAIL] 📧 Attempting to send ACCEPTANCE email to: ${candidate.email}`);
+    console.log(`[EMAIL] Candidate: ${candidate.name} | Role: ${candidate.jobRole}`);
+    console.log(`[EMAIL] Company: ${companyInfo.companyName} | HR: ${companyInfo.hrName}`);
 
-            const { data, error } = await resend.emails.send({
-                from: `${companyInfo.hrName} <${companyInfo.hrEmail || 'noreply@your-domain.com'}>`,
-                to: [candidate.email],
-                subject: `Congratulations! Interview Invitation from ${companyInfo.companyName}`,
-                html: emailHtml,
-            });
+    try {
+      const emailHtml = this.generateAcceptanceEmailHTML(candidate, companyInfo);
 
-            if (error) {
-                console.error('Failed to send acceptance email:', error);
-                return { success: false, error: error.message };
-            }
+      const { data, error } = await resend.emails.send({
+        from: `${companyInfo.hrName} <${companyInfo.hrEmail || 'noreply@your-domain.com'}>`,
+        to: [candidate.email],
+        subject: `Congratulations! Interview Invitation from ${companyInfo.companyName}`,
+        html: emailHtml,
+      });
 
-            return { success: true };
-        } catch (error: any) {
-            console.error('Error sending acceptance email:', error);
-            return { success: false, error: error.message };
-        }
+      if (error) {
+        console.error(`[EMAIL] ❌ FAILED to send acceptance email to ${candidate.email}`);
+        console.error(`[EMAIL] Error details:`, JSON.stringify(error, null, 2));
+        return { success: false, error: error.message };
+      }
+
+      console.log(`[EMAIL] ✅ SUCCESS! Acceptance email sent to ${candidate.email}`);
+      console.log(`[EMAIL] Email ID:`, data?.id || 'N/A');
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[EMAIL] ❌ EXCEPTION while sending acceptance email to ${candidate.email}`);
+      console.error(`[EMAIL] Exception details:`, error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send rejection email to a single candidate
+   */
+  async sendRejectionEmail(
+    candidate: CandidateEmailData,
+    companyInfo: CompanyInfo
+  ): Promise<{ success: boolean; error?: string }> {
+    console.log(`[EMAIL] 📧 Attempting to send REJECTION email to: ${candidate.email}`);
+    console.log(`[EMAIL] Candidate: ${candidate.name} | Role: ${candidate.jobRole}`);
+    console.log(`[EMAIL] Company: ${companyInfo.companyName} | HR: ${companyInfo.hrName}`);
+
+    try {
+      const emailHtml = this.generateRejectionEmailHTML(candidate, companyInfo);
+
+      const { data, error } = await resend.emails.send({
+        from: `${companyInfo.hrName} <${companyInfo.hrEmail || 'noreply@your-domain.com'}>`,
+        to: [candidate.email],
+        subject: `Application Update - ${candidate.jobRole} at ${companyInfo.companyName}`,
+        html: emailHtml,
+      });
+
+      if (error) {
+        console.error(`[EMAIL] ❌ FAILED to send rejection email to ${candidate.email}`);
+        console.error(`[EMAIL] Error details:`, JSON.stringify(error, null, 2));
+        return { success: false, error: error.message };
+      }
+
+      console.log(`[EMAIL] ✅ SUCCESS! Rejection email sent to ${candidate.email}`);
+      console.log(`[EMAIL] Email ID:`, data?.id || 'N/A');
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[EMAIL] ❌ EXCEPTION while sending rejection email to ${candidate.email}`);
+      console.error(`[EMAIL] Exception details:`, error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send bulk emails (acceptance or rejection)
+   */
+  async sendBulkEmails(
+    candidates: CandidateEmailData[],
+    type: 'acceptance' | 'rejection',
+    companyInfo: CompanyInfo
+  ): Promise<{ sent: number; failed: number; errors: string[] }> {
+    console.log(`[EMAIL] 🚀 Starting BULK ${type.toUpperCase()} email sending`);
+    console.log(`[EMAIL] Total candidates: ${candidates.length}`);
+    console.log(`[EMAIL] Company: ${companyInfo.companyName}`);
+    console.log(`[EMAIL] ==========================================`);
+
+    const results = {
+      sent: 0,
+      failed: 0,
+      errors: [] as string[],
+    };
+
+    for (let i = 0; i < candidates.length; i++) {
+      const candidate = candidates[i];
+      console.log(`[EMAIL] Processing ${i + 1}/${candidates.length}...`);
+
+      const result = type === 'acceptance'
+        ? await this.sendAcceptanceEmail(candidate, companyInfo)
+        : await this.sendRejectionEmail(candidate, companyInfo);
+
+      if (result.success) {
+        results.sent++;
+        console.log(`[EMAIL] ✅ Progress: ${results.sent} sent, ${results.failed} failed`);
+      } else {
+        results.failed++;
+        results.errors.push(
+          `${candidate.email}: ${result.error || 'Unknown error'}`
+        );
+        console.log(`[EMAIL] ❌ Progress: ${results.sent} sent, ${results.failed} failed`);
+      }
+
+      // Add small delay to respect rate limits
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    /**
-     * Send rejection email to a single candidate
-     */
-    async sendRejectionEmail(
-        candidate: CandidateEmailData,
-        companyInfo: CompanyInfo
-    ): Promise<{ success: boolean; error?: string }> {
-        try {
-            const emailHtml = this.generateRejectionEmailHTML(candidate, companyInfo);
-
-            const { data, error } = await resend.emails.send({
-                from: `${companyInfo.hrName} <${companyInfo.hrEmail || 'noreply@your-domain.com'}>`,
-                to: [candidate.email],
-                subject: `Application Update - ${candidate.jobRole} at ${companyInfo.companyName}`,
-                html: emailHtml,
-            });
-
-            if (error) {
-                console.error('Failed to send rejection email:', error);
-                return { success: false, error: error.message };
-            }
-
-            return { success: true };
-        } catch (error: any) {
-            console.error('Error sending rejection email:', error);
-            return { success: false, error: error.message };
-        }
+    console.log(`[EMAIL] ==========================================`);
+    console.log(`[EMAIL] 🏁 BULK EMAIL COMPLETE!`);
+    console.log(`[EMAIL] ✅ Successfully sent: ${results.sent}`);
+    console.log(`[EMAIL] ❌ Failed: ${results.failed}`);
+    if (results.errors.length > 0) {
+      console.log(`[EMAIL] Error details:`);
+      results.errors.forEach((err, idx) => {
+        console.log(`[EMAIL]   ${idx + 1}. ${err}`);
+      });
     }
+    console.log(`[EMAIL] ==========================================`);
 
-    /**
-     * Send bulk emails (acceptance or rejection)
-     */
-    async sendBulkEmails(
-        candidates: CandidateEmailData[],
-        type: 'acceptance' | 'rejection',
-        companyInfo: CompanyInfo
-    ): Promise<{ sent: number; failed: number; errors: string[] }> {
-        const results = {
-            sent: 0,
-            failed: 0,
-            errors: [] as string[],
-        };
+    return results;
+  }
 
-        for (const candidate of candidates) {
-            const result = type === 'acceptance'
-                ? await this.sendAcceptanceEmail(candidate, companyInfo)
-                : await this.sendRejectionEmail(candidate, companyInfo);
-
-            if (result.success) {
-                results.sent++;
-            } else {
-                results.failed++;
-                results.errors.push(
-                    `${candidate.email}: ${result.error || 'Unknown error'}`
-                );
-            }
-
-            // Add small delay to respect rate limits
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-
-        return results;
-    }
-
-    /**
-     * Generate acceptance email HTML
-     */
-    private generateAcceptanceEmailHTML(
-        candidate: CandidateEmailData,
-        companyInfo: CompanyInfo
-    ): string {
-        return `
+  /**
+   * Generate acceptance email HTML
+   */
+  private generateAcceptanceEmailHTML(
+    candidate: CandidateEmailData,
+    companyInfo: CompanyInfo
+  ): string {
+    return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -166,16 +204,16 @@ class EmailService {
 </body>
 </html>
     `.trim();
-    }
+  }
 
-    /**
-     * Generate rejection email HTML
-     */
-    private generateRejectionEmailHTML(
-        candidate: CandidateEmailData,
-        companyInfo: CompanyInfo
-    ): string {
-        return `
+  /**
+   * Generate rejection email HTML
+   */
+  private generateRejectionEmailHTML(
+    candidate: CandidateEmailData,
+    companyInfo: CompanyInfo
+  ): string {
+    return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -227,7 +265,7 @@ class EmailService {
 </body>
 </html>
     `.trim();
-    }
+  }
 }
 
 export const emailService = new EmailService();
