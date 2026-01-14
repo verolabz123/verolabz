@@ -48,7 +48,7 @@ export interface FirebaseResume {
   experienceYears: number;
   atsScore: number;
   aiReasoning?: string;
-  status: "pending" | "shortlisted" | "rejected";
+  status: "pending" | "shortlisted" | "accepted" | "rejected";
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
@@ -290,7 +290,8 @@ export const getResumeStats = async (userId: string) => {
 
     const stats = {
       total: resumes.length,
-      shortlisted: resumes.filter((r) => r.status === "shortlisted").length,
+      // Count both "shortlisted" and "accepted" as accepted candidates
+      shortlisted: resumes.filter((r) => r.status === "shortlisted" || r.status === "accepted").length,
       rejected: resumes.filter((r) => r.status === "rejected").length,
       pending: resumes.filter((r) => r.status === "pending").length,
     };
