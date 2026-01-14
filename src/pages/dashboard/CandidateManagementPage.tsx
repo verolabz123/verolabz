@@ -35,8 +35,10 @@ import { toast } from "@/components/ui/use-toast";
 import {
     getResumesByUserId,
     updateResume,
+    getUserProfile,
     type FirebaseResume,
 } from "@/lib/firebase-db";
+import { sendBulkEmails, type CandidateEmailData, type CompanyInfo } from "@/lib/email-api";
 
 export default function CandidateManagementPage() {
     const { user } = useAuth();
@@ -127,18 +129,50 @@ export default function CandidateManagementPage() {
         setIsSendingEmails(true);
 
         try {
-            // TODO: Implement email sending API call
-            // await sendBulkEmails({ candidates: targetCandidates, type });
+            // Get user profile for company info
+            if (!user) throw new Error("User not authenticated");
 
-            toast({
-                title: "Emails Sent",
-                description: `${type === "accepted" ? "Acceptance" : "Rejection"} emails sent to ${targetCandidates.length} candidate(s)`,
-            });
-        } catch (error) {
+            const userProfile = await getUserProfile(user.uid);
+
+            // Prepare company info
+            const companyInfo: CompanyInfo = {
+                companyName: userProfile?.companyName || "Your Company",
+                hrName: userProfile?.name || user.displayName || "HR Team",
+                hrEmail: userProfile?.email || user.email || "hr@company.com",
+                companyWebsite: userProfile?.companyWebsite,
+            };
+
+            // Prepare candidate email data
+            const candidateEmails: CandidateEmailData[] = targetCandidates.map(c => ({
+                name: c.candidateName,
+                email: c.fileName || "candidate@example.com", // TODO: Add email field to resume
+                jobRole: "Software Developer", // TODO: Add jobRole field to resume
+            }));
+
+            // Send bulk emails
+            const result = await sendBulkEmails(
+                candidateEmails,
+                type,
+                companyInfo
+            );
+
+            if (result.failed > 0) {
+                toast({
+                    title: "Partially Sent",
+                    description: `${result.sent} emails sent successfully, ${result.failed} failed`,
+                    variant: "destructive",
+                });
+            } else {
+                toast({
+                    title: "Emails Sent Successfully",
+                    description: `${type === "accepted" ? "Acceptance" : "Rejection"} emails sent to ${result.sent} candidate(s)`,
+                });
+            }
+        } catch (error: any) {
             console.error("Failed to send emails:", error);
             toast({
                 title: "Error",
-                description: "Failed to send emails",
+                description: error.message || "Failed to send emails",
                 variant: "destructive",
             });
         } finally {
