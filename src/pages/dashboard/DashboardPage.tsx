@@ -137,6 +137,13 @@ export default function DashboardPage() {
       }, {});
       console.log('Applicant status breakdown:', applicantStatusCounts);
 
+      // Log RESUME statuses - this is the key!
+      const resumeStatusCounts = resumes.reduce((acc: any, r) => {
+        acc[r.status] = (acc[r.status] || 0) + 1;
+        return acc;
+      }, {});
+      console.log('RESUME status breakdown:', resumeStatusCounts);
+
       // Combine stats from both collections
       const applicantStats = await getApplicantStats(user.uid);
       console.log('Applicant stats:', applicantStats);
