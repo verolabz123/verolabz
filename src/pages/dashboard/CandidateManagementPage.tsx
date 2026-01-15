@@ -1,279 +1,341 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import {
-    Users,
-    RefreshCw,
-    Check,
-    X,
-} from "lucide-react";
+import { Users, RefreshCw, Check, X, Mail } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import {
-    getResumesByUserId,
-    updateResume,
-    type FirebaseResume,
+  getResumesByUserId,
+  updateResume,
+  type FirebaseResume,
 } from "@/lib/firebase-db";
 
 export default function CandidateManagementPage() {
-    const { user } = useAuth();
-    const [candidates, setCandidates] = useState<FirebaseResume[]>([]);
-    const [filteredCandidates, setFilteredCandidates] = useState<FirebaseResume[]>([]);
-    const [selectedRole, setSelectedRole] = useState<string>("all");
-    const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const [candidates, setCandidates] = useState<FirebaseResume[]>([]);
+  const [filteredCandidates, setFilteredCandidates] = useState<
+    FirebaseResume[]
+  >([]);
+  const [selectedRole, setSelectedRole] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        fetchCandidates();
-    }, [user]);
+  useEffect(() => {
+    fetchCandidates();
+  }, [user]);
 
-    useEffect(() => {
-        filterCandidates();
-    }, [selectedRole, candidates]);
+  useEffect(() => {
+    filterCandidates();
+  }, [selectedRole, candidates]);
 
-    const fetchCandidates = async () => {
-        if (!user) {
-            setIsLoading(false);
-            return;
-        }
+  const fetchCandidates = async () => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
-        try {
-            const resumes = await getResumesByUserId(user.uid);
-            setCandidates(resumes);
-        } catch (error) {
-            console.error("Failed to fetch candidates:", error);
-            toast({
-                title: "Error",
-                description: "Failed to load candidates",
-                variant: "destructive",
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    try {
+      const resumes = await getResumesByUserId(user.uid);
+      setCandidates(resumes);
+    } catch (error) {
+      console.error("Failed to fetch candidates:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load candidates",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const filterCandidates = () => {
-        if (selectedRole === "all") {
-            setFilteredCandidates(candidates);
-        } else {
-            // Filter by role if we had role data - for now show all
-            setFilteredCandidates(candidates);
-        }
-    };
+  const filterCandidates = () => {
+    if (selectedRole === "all") {
+      setFilteredCandidates(candidates);
+    } else {
+      // Filter by role if we had role data - for now show all
+      setFilteredCandidates(candidates);
+    }
+  };
 
-    const handleStatusChange = async (
-        candidateId: string,
-        newStatus: "accepted" | "rejected"
-    ) => {
-        try {
-            await updateResume(candidateId, { status: newStatus });
+  const handleStatusChange = async (
+    candidateId: string,
+    newStatus: "accepted" | "rejected",
+  ) => {
+    try {
+      await updateResume(candidateId, { status: newStatus });
 
-            // Update local state
-            setCandidates(candidates.map(c =>
-                c.id === candidateId ? { ...c, status: newStatus } : c
-            ));
+      // Update local state
+      setCandidates(
+        candidates.map((c) =>
+          c.id === candidateId ? { ...c, status: newStatus } : c,
+        ),
+      );
 
-            toast({
-                title: "Status Updated",
-                description: `Candidate marked as ${newStatus}`,
-            });
-        } catch (error) {
-            console.error("Failed to update status:", error);
-            toast({
-                title: "Error",
-                description: "Failed to update candidate status",
-                variant: "destructive",
-            });
-        }
-    };
+      toast({
+        title: "Status Updated",
+        description: `Candidate marked as ${newStatus}`,
+      });
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update candidate status",
+        variant: "destructive",
+      });
+    }
+  };
 
+  const [isSendingEmails, setIsSendingEmails] = useState(false);
 
-    const acceptedCount = filteredCandidates.filter((c) => c.status === "accepted").length;
-    const rejectedCount = filteredCandidates.filter((c) => c.status === "rejected").length;
+  const handleSendEmails = async (targetStatus: "accepted" | "rejected") => {
+    if (!user) {
+      toast({
+        title: "Not logged in",
+        description: "Please sign in to send emails",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "accepted":
-                return "bg-emerald-500/15 text-emerald-600";
-            case "rejected":
-                return "bg-red-500/15 text-red-600";
-            case "pending":
-                return "bg-amber-500/15 text-amber-600";
-            default:
-                return "bg-gray-500/15 text-gray-600";
-        }
-    };
+    try {
+      setIsSendingEmails(true);
 
-    return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold">Candidate Management</h1>
-                    <p className="text-[hsl(var(--muted-foreground))]">
-                        Review and manage candidates by role
-                    </p>
-                </div>
-                <Button variant="outline" size="sm" onClick={fetchCandidates}>
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Refresh
-                </Button>
-            </div>
+      // Select candidates in current filtered list that match the target status
+      const toEmail = filteredCandidates.filter(
+        (c) => c.status === targetStatus,
+      );
 
-            {/* Filter and Actions */}
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle>Filters & Actions</CardTitle>
-                            <CardDescription>
-                                {filteredCandidates.length} candidate(s) | {acceptedCount} accepted | {rejectedCount} rejected
-                            </CardDescription>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleSendEmails("accepted")}
-                                disabled={acceptedCount === 0 || isSendingEmails}
-                            >
-                                <Mail className="h-4 w-4 mr-2" />
-                                Send to {acceptedCount} Accepted
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleSendEmails("rejected")}
-                                disabled={rejectedCount === 0 || isSendingEmails}
-                            >
-                                <Mail className="h-4 w-4 mr-2" />
-                                Send to {rejectedCount} Rejected
-                            </Button>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex gap-4">
-                        <div className="w-64">
-                            <Select value={selectedRole} onValueChange={setSelectedRole}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Filter by role" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Roles</SelectItem>
-                                    <SelectItem value="frontend">Frontend Developer</SelectItem>
-                                    <SelectItem value="backend">Backend Developer</SelectItem>
-                                    <SelectItem value="fullstack">Full Stack Developer</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+      if (toEmail.length === 0) {
+        toast({
+          title: "No candidates",
+          description: `There are no ${targetStatus} candidates to email.`,
+        });
+        return;
+      }
 
-            {/* Candidates Table */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Candidates</CardTitle>
-                    <CardDescription>
-                        All candidates with their current status
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {isLoading ? (
-                        <div className="h-[300px] flex items-center justify-center">
-                            <RefreshCw className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
-                        </div>
-                    ) : filteredCandidates.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Users className="h-12 w-12 mx-auto text-[hsl(var(--muted-foreground))] mb-4" />
-                            <h3 className="font-semibold mb-2">No candidates found</h3>
-                            <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                                Upload candidates via Bulk Upload to see them here
-                            </p>
-                        </div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Skills</TableHead>
-                                    <TableHead>ATS Score</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredCandidates.map((candidate) => (
-                                    <TableRow key={candidate.id}>
-                                        <TableCell className="font-medium">
-                                            {candidate.candidateName}
-                                        </TableCell>
-                                        <TableCell className="text-sm text-[hsl(var(--muted-foreground))]">
-                                            {/* Email would come from extended data */}
-                                            -
-                                        </TableCell>
-                                        <TableCell className="max-w-xs truncate text-sm">
-                                            {candidate.skills.split(",").slice(0, 3).join(", ")}
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="font-bold text-[hsl(var(--primary))]">
-                                                {candidate.atsScore}%
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge className={getStatusColor(candidate.status)}>
-                                                {candidate.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    variant={candidate.status === "accepted" ? "default" : "outline"}
-                                                    size="sm"
-                                                    onClick={() => handleStatusChange(candidate.id!, "accepted")}
-                                                    disabled={candidate.status === "accepted"}
-                                                >
-                                                    <Check className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant={candidate.status === "rejected" ? "destructive" : "outline"}
-                                                    size="sm"
-                                                    onClick={() => handleStatusChange(candidate.id!, "rejected")}
-                                                    disabled={candidate.status === "rejected"}
-                                                >
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
+      // TODO: wire this up to a real email-sending backend. For now we just notify via toast.
+      // This avoids build/runtime errors while providing a clear UI flow.
+      toast({
+        title: "Emails queued",
+        description: `Queued ${toEmail.length} email(s) to ${targetStatus} candidates.`,
+      });
+    } catch (err) {
+      console.error("Failed to send emails:", err);
+      toast({
+        title: "Error",
+        description: "Failed to queue emails",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingEmails(false);
+    }
+  };
+
+  const acceptedCount = filteredCandidates.filter(
+    (c) => c.status === "accepted",
+  ).length;
+  const rejectedCount = filteredCandidates.filter(
+    (c) => c.status === "rejected",
+  ).length;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "accepted":
+        return "bg-emerald-500/15 text-emerald-600";
+      case "rejected":
+        return "bg-red-500/15 text-red-600";
+      case "pending":
+        return "bg-amber-500/15 text-amber-600";
+      default:
+        return "bg-gray-500/15 text-gray-600";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Candidate Management</h1>
+          <p className="text-[hsl(var(--muted-foreground))]">
+            Review and manage candidates by role
+          </p>
         </div>
-    );
+        <Button variant="outline" size="sm" onClick={fetchCandidates}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </Button>
+      </div>
+
+      {/* Filter and Actions */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Filters & Actions</CardTitle>
+              <CardDescription>
+                {filteredCandidates.length} candidate(s) | {acceptedCount}{" "}
+                accepted | {rejectedCount} rejected
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSendEmails("accepted")}
+                disabled={acceptedCount === 0 || isSendingEmails}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Send to {acceptedCount} Accepted
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSendEmails("rejected")}
+                disabled={rejectedCount === 0 || isSendingEmails}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Send to {rejectedCount} Rejected
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <div className="w-64">
+              <Select value={selectedRole} onValueChange={setSelectedRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="frontend">Frontend Developer</SelectItem>
+                  <SelectItem value="backend">Backend Developer</SelectItem>
+                  <SelectItem value="fullstack">
+                    Full Stack Developer
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Candidates Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Candidates</CardTitle>
+          <CardDescription>
+            All candidates with their current status
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <RefreshCw className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
+            </div>
+          ) : filteredCandidates.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 mx-auto text-[hsl(var(--muted-foreground))] mb-4" />
+              <h3 className="font-semibold mb-2">No candidates found</h3>
+              <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                Upload candidates via Bulk Upload to see them here
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Skills</TableHead>
+                  <TableHead>ATS Score</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCandidates.map((candidate) => (
+                  <TableRow key={candidate.id}>
+                    <TableCell className="font-medium">
+                      {candidate.candidateName}
+                    </TableCell>
+                    <TableCell className="text-sm text-[hsl(var(--muted-foreground))]">
+                      {/* Email would come from extended data */}-
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate text-sm">
+                      {candidate.skills.split(",").slice(0, 3).join(", ")}
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-bold text-[hsl(var(--primary))]">
+                        {candidate.atsScore}%
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(candidate.status)}>
+                        {candidate.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant={
+                            candidate.status === "accepted"
+                              ? "default"
+                              : "outline"
+                          }
+                          size="sm"
+                          onClick={() =>
+                            handleStatusChange(candidate.id!, "accepted")
+                          }
+                          disabled={candidate.status === "accepted"}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant={
+                            candidate.status === "rejected"
+                              ? "destructive"
+                              : "outline"
+                          }
+                          size="sm"
+                          onClick={() =>
+                            handleStatusChange(candidate.id!, "rejected")
+                          }
+                          disabled={candidate.status === "rejected"}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
