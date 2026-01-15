@@ -31,7 +31,8 @@ class EmailService {
       const emailHtml = this.generateAcceptanceEmailHTML(candidate, companyInfo);
 
       const { data, error } = await resend.emails.send({
-        from: `${companyInfo.hrName} <${companyInfo.hrEmail || 'noreply@your-domain.com'}>`,
+        from: `Verolabz HR <onboarding@resend.dev>`,
+        replyTo: companyInfo.hrEmail,
         to: [candidate.email],
         subject: `Congratulations! Interview Invitation from ${companyInfo.companyName}`,
         html: emailHtml,
@@ -68,7 +69,8 @@ class EmailService {
       const emailHtml = this.generateRejectionEmailHTML(candidate, companyInfo);
 
       const { data, error } = await resend.emails.send({
-        from: `${companyInfo.hrName} <${companyInfo.hrEmail || 'noreply@your-domain.com'}>`,
+        from: `Verolabz HR <onboarding@resend.dev>`,
+        replyTo: companyInfo.hrEmail,
         to: [candidate.email],
         subject: `Application Update - ${candidate.jobRole} at ${companyInfo.companyName}`,
         html: emailHtml,
