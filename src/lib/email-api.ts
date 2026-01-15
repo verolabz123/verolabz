@@ -33,28 +33,56 @@ export async function sendBulkEmails(
     emailType: 'acceptance' | 'rejection',
     companyInfo: CompanyInfo
 ): Promise<BulkEmailResponse> {
+    console.log('[EMAIL API] 🚀 sendBulkEmails called');
+    console.log('[EMAIL API] Candidates:', candidates.length);
+    console.log('[EMAIL API] Email type:', emailType);
+    console.log('[EMAIL API] Company:', companyInfo.companyName);
+    console.log('[EMAIL API] Backend URL:', BACKEND_URL);
+
     try {
+        const requestBody = {
+            candidates,
+            emailType,
+            companyInfo,
+        };
+
+        console.log('[EMAIL API] Request body:', JSON.stringify(requestBody, null, 2));
+        console.log('[EMAIL API] Making fetch request to:', `${BACKEND_URL}/api/v1/email/send-bulk`);
+
         const response = await fetch(`${BACKEND_URL}/api/v1/email/send-bulk`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                candidates,
-                emailType,
-                companyInfo,
-            }),
+            body: JSON.stringify(requestBody),
         });
 
+        console.log('[EMAIL API] Response status:', response.status);
+        console.log('[EMAIL API] Response OK:', response.ok);
+
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to send emails');
+            const errorText = await response.text();
+            console.error('[EMAIL API] ❌ Error response:', errorText);
+
+            let error;
+            try {
+                error = JSON.parse(errorText);
+            } catch {
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            throw new Error(error.message || `HTTP ${response.status}`);
         }
 
         const data = await response.json();
+        console.log('[EMAIL API] ✅ Success response:', data);
+
         return data;
-    } catch (error) {
-        console.error('Error sending bulk emails:', error);
+    } catch (error: any) {
+        console.error('[EMAIL API] ❌ Exception caught:', error);
+        console.error('[EMAIL API] Error name:', error?.name);
+        console.error('[EMAIL API] Error message:', error?.message);
+        console.error('[EMAIL API] Error stack:', error?.stack);
         throw error;
     }
 }
