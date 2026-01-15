@@ -82,6 +82,9 @@ export default function CandidatesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
+  // Selection state for CSV export
+  const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
+
   // Real-time listener for applicants
   useEffect(() => {
     if (!user) {
@@ -135,14 +138,6 @@ export default function CandidatesPage() {
         setStats(statsData);
 
         setIsLoading(false);
-
-        // Show toast when new candidates are added
-        if (applicantsData.length > applicants.length) {
-          toast({
-            title: "New Candidate",
-            description: "Evaluation results updated",
-          });
-        }
       },
       (error) => {
         console.error("Error listening to applicants:", error);
@@ -185,6 +180,17 @@ export default function CandidatesPage() {
     }
 
     setFilteredApplicants(filtered);
+
+    // Reset selection for any IDs no longer visible
+    setSelectedIds((prev) => {
+      const next: Record<string, boolean> = {};
+      for (const id of Object.keys(prev)) {
+        if (filtered.find((f) => f.id === id) && prev[id]) {
+          next[id] = true;
+        }
+      }
+      return next;
+    });
   }, [applicants, selectedJobId, selectedStatus, searchQuery]);
 
   const formatDate = (timestamp: any) => {
@@ -200,11 +206,145 @@ export default function CandidatesPage() {
   };
 
   const getScoreColor = (score?: number) => {
-    if (!score) return "text-gray-400";
+    if (score === undefined || score === null) return "text-gray-400";
     if (score >= 80) return "text-emerald-600";
     if (score >= 60) return "text-amber-600";
     return "text-red-600";
   };
+
+  // Selection helpers
+  const toggleSelect = (id?: string) => {
+    if (!id) return;
+    setSelectedIds((prev) => {
+      const next = { ...prev };
+      if (next[id]) delete next[id];
+      else next[id] = true;
+      return next;
+    });
+  };
+
+  const selectAllVisible = () => {
+    const allSelected = filteredApplicants.every(
+      (a) => selectedIds[a.id || ""] === true,
+    );
+    if (allSelected) {
+      // clear
+      setSelectedIds((prev) => {
+        const next: Record<string, boolean> = {};
+        // maintain any selections for items not currently visible
+        for (const id of Object.keys(prev)) {
+          if (!filteredApplicants.find((f) => f.id === id)) next[id] = true;
+        }
+        return next;
+      });
+    } else {
+      // select all visible
+      setSelectedIds((prev) => {
+        const next = { ...prev };
+        filteredApplicants.forEach((a) => {
+          if (a.id) next[a.id] = true;
+        });
+        return next;
+      });
+    }
+  };
+
+  const getSelectedApplicants = () => {
+    const ids = new Set(
+      Object.keys(selectedIds).filter((id) => selectedIds[id]),
+    );
+    return filteredApplicants.filter((a) => a.id && ids.has(a.id));
+  };
+
+  // CSV export
+  const escapeCsv = (value: any) => {
+    if (value === undefined || value === null) return "";
+    const s = String(value);
+    // If contains quote, comma, newline, wrap in quotes and escape quotes
+    if (/[",\n\r]/.test(s)) {
+      return `"${s.replace(/"/g, '""')}"`;
+    }
+    return s;
+  };
+
+  const exportSelectedToCSV = () => {
+    const selected = getSelectedApplicants();
+    if (selected.length === 0) {
+      toast({
+        title: "No selection",
+        description: "Please select one or more candidates to export.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Headers: include core fields and more
+    const headers = [
+      "Name",
+      "Email",
+      "Phone",
+      "Job ID",
+      "Resume URL",
+      "Score",
+      "Status",
+      "Skills",
+      "Reason",
+      "Uploaded At",
+    ];
+
+    const rows = selected.map((a) => {
+      const skills = a.parsed?.skills ? a.parsed.skills.join(", ") : "";
+      const uploadedAt = a.createdAt ? formatDate(a.createdAt) : "";
+      return [
+        escapeCsv(a.candidate.name),
+        escapeCsv(a.candidate.email),
+        escapeCsv(a.candidate.phone),
+        escapeCsv(a.candidate.jobId),
+        escapeCsv(a.resumeUrl),
+        escapeCsv(a.score),
+        escapeCsv(a.status),
+        escapeCsv(skills),
+        escapeCsv(a.reason),
+        escapeCsv(uploadedAt),
+      ].join(",");
+    });
+
+    const csvContent = [headers.map(escapeCsv).join(","), ...rows].join("\r\n");
+
+    try {
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const date = new Date();
+      const stamp = date.toISOString().replace(/[:.]/g, "-");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `candidates_export_${stamp}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Exported",
+        description: `Exported ${selected.length} candidate(s)`,
+      });
+
+      // Optionally clear selection after export
+      // clearSelection();
+    } catch (error) {
+      console.error("Failed to export CSV:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate CSV",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const selectedCount = Object.values(selectedIds).filter(Boolean).length;
+  const allVisibleSelected =
+    filteredApplicants.length > 0 &&
+    filteredApplicants.every((a) => a.id && selectedIds[a.id]);
 
   return (
     <div className="space-y-6">
@@ -380,10 +520,32 @@ export default function CandidatesPage() {
                 candidates
               </CardDescription>
             </div>
-            <Button variant="outline" size="sm" disabled>
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
+            <div className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={allVisibleSelected}
+                  onChange={() => selectAllVisible()}
+                  className="h-4 w-4"
+                />
+                <span>Select all visible</span>
+              </label>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportSelectedToCSV}
+                disabled={selectedCount === 0}
+                title={
+                  selectedCount === 0
+                    ? "Select candidates to export"
+                    : `Export ${selectedCount} candidate(s)`
+                }
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV{selectedCount > 0 ? ` (${selectedCount})` : ""}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -415,6 +577,17 @@ export default function CandidatesPage() {
                     {/* Candidate Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={
+                              !!(applicant.id && selectedIds[applicant.id])
+                            }
+                            onChange={() => toggleSelect(applicant.id)}
+                            className="h-4 w-4"
+                            aria-label={`select-${applicant.id}`}
+                          />
+                        </div>
                         <h4 className="font-semibold">
                           {applicant.candidate.name}
                         </h4>
