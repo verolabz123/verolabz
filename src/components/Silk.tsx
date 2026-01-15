@@ -16,11 +16,11 @@ interface SilkProps {
 }
 
 const Silk: React.FC<SilkProps> = ({
-  speed = 5,
-  scale = 1,
+  speed: _speed = 5,
+  scale: _scale = 1,
   color = "#7B7481",
-  noiseIntensity = 1.5,
-  rotation = 0,
+  noiseIntensity: _noiseIntensity = 1.5,
+  rotation: _rotation = 0,
 }) => {
   // This placeholder renders a subtle colored block to occupy
   // the same layout space where the silk canvas would normally appear.
