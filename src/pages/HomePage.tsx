@@ -4,7 +4,7 @@ import { Footer } from "@/components/marketing/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Silk from "@/components/Silk";
+import { AuroraBackground } from "@/components/ui/shadcn-io/aurora-background";
 import {
   FileText,
   Brain,
@@ -22,7 +22,7 @@ import {
   UserCheck,
   Bell,
   Mail,
-  Star,
+
 } from "lucide-react";
 
 export default function HomePage() {
@@ -32,107 +32,46 @@ export default function HomePage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden py-20 md:py-32">
-          {/* Silk Background */}
-          <div className="absolute inset-0 -z-10">
-            <Silk
-              speed={3}
-              scale={1.2}
-              color="#667eea"
-              noiseIntensity={1}
-              rotation={0}
-            />
-          </div>
+        {/* Hero Section */}
+        <AuroraBackground className="py-20 md:py-32 h-auto min-h-[600px]">
+          <div className="container mx-auto px-4 md:px-6 relative z-10">
+            <div className="flex flex-col items-center text-center max-w-3xl mx-auto space-y-8">
 
-          {/* Overlay for better text readability */}
-          <div className="absolute inset-0 bg-background/80 -z-[9]" />
-
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-                  Hiring{" "}
-                  <span className="text-[hsl(var(--primary))]">Automation</span>{" "}
-                  Platform
-                </h1>
-                <p className="text-xl text-[hsl(var(--muted-foreground))] max-w-lg">
-                  Turn manual recruitment into an automated, intelligent workflow.
-                  Screen resumes 10x faster with AI-powered parsing and matching.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link to="/auth/register">
-                    <Button size="lg" className="w-full sm:w-auto">
-                      Start Free Trial
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link to="/how-it-works">
-                    <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                      View Live Demo
-                    </Button>
-                  </Link>
-                </div>
-                <div className="flex items-center gap-6 text-sm text-[hsl(var(--muted-foreground))]">
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    No credit card required
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    14-day free trial
-                  </span>
-                </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+                Hiring{" "}
+                <span className="text-[hsl(var(--primary))]">Automation</span>{" "}
+                Platform
+              </h1>
+              <p className="text-xl text-[hsl(var(--muted-foreground))] max-w-lg mx-auto">
+                Turn manual recruitment into an automated, intelligent workflow.
+                Screen resumes 10x faster with AI-powered parsing and matching.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/auth/register">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Start Free Trial
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link to="/how-it-works">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                    View Live Demo
+                  </Button>
+                </Link>
               </div>
-
-              {/* Dashboard Preview */}
-              <div className="relative">
-                <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-2xl overflow-hidden">
-                  <div className="bg-[hsl(var(--muted))] px-4 py-3 border-b border-[hsl(var(--border))] flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-red-400" />
-                    <div className="h-3 w-3 rounded-full bg-yellow-400" />
-                    <div className="h-3 w-3 rounded-full bg-green-400" />
-                    <span className="ml-2 text-sm text-[hsl(var(--muted-foreground))]">Verolabz Dashboard</span>
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="p-4 rounded-lg bg-[hsl(var(--primary))]/10 text-center">
-                        <div className="text-2xl font-bold text-[hsl(var(--primary))]">247</div>
-                        <div className="text-xs text-[hsl(var(--muted-foreground))]">Processed</div>
-                      </div>
-                      <div className="p-4 rounded-lg bg-emerald-500/10 text-center">
-                        <div className="text-2xl font-bold text-emerald-600">52</div>
-                        <div className="text-xs text-[hsl(var(--muted-foreground))]">Shortlisted</div>
-                      </div>
-                      <div className="p-4 rounded-lg bg-amber-500/10 text-center">
-                        <div className="text-2xl font-bold text-amber-600">18</div>
-                        <div className="text-xs text-[hsl(var(--muted-foreground))]">Pending</div>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      {[
-                        { name: "Sarah Chen", role: "Full Stack Developer", score: 94 },
-                        { name: "Michael Park", role: "Backend Engineer", score: 87 },
-                        { name: "Emma Wilson", role: "DevOps Engineer", score: 82 },
-                      ].map((candidate, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-[hsl(var(--muted))]/50">
-                          <div>
-                            <div className="font-medium text-sm">{candidate.name}</div>
-                            <div className="text-xs text-[hsl(var(--muted-foreground))]">{candidate.role}</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="text-sm font-semibold text-[hsl(var(--primary))]">{candidate.score}%</div>
-                            <Badge variant="success" className="text-xs">Match</Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+              <div className="flex items-center gap-6 text-sm text-[hsl(var(--muted-foreground))]">
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  No credit card required
+                </span>
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  14-day free trial
+                </span>
               </div>
             </div>
           </div>
-        </section>
+        </AuroraBackground>
 
         {/* Core Value Proposition */}
         <section className="py-16 md:py-24 bg-[hsl(var(--muted))]/30">
@@ -495,6 +434,6 @@ export default function HomePage() {
       </main>
 
       <Footer />
-    </div>
+    </div >
   );
 }

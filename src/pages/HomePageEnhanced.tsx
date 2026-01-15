@@ -60,7 +60,7 @@ export default function HomePage() {
                                 <motion.div variants={fadeInUp}>
                                     <Badge variant="secondary" className="mb-4 shadow-premium hover-lift">
                                         <Sparkles className="h-3 w-3 mr-1" />
-                                        Trusted by 500+ Companies
+
                                     </Badge>
                                 </motion.div>
 
