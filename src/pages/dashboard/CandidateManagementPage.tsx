@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/table";
 import {
     Users,
-    Mail,
     RefreshCw,
     Check,
     X,
@@ -37,7 +36,6 @@ import {
     updateResume,
     type FirebaseResume,
 } from "@/lib/firebase-db";
-import { sendBulkEmails, type CandidateEmailData, type CompanyInfo } from "@/lib/email-api";
 
 export default function CandidateManagementPage() {
     const { user } = useAuth();
@@ -45,7 +43,6 @@ export default function CandidateManagementPage() {
     const [filteredCandidates, setFilteredCandidates] = useState<FirebaseResume[]>([]);
     const [selectedRole, setSelectedRole] = useState<string>("all");
     const [isLoading, setIsLoading] = useState(true);
-    const [isSendingEmails, setIsSendingEmails] = useState(false);
 
     useEffect(() => {
         fetchCandidates();
@@ -111,81 +108,6 @@ export default function CandidateManagementPage() {
         }
     };
 
-    const handleSendEmails = async (type: "accepted" | "rejected") => {
-        const targetCandidates = filteredCandidates.filter(
-            (c) => c.status === type
-        );
-
-        if (targetCandidates.length === 0) {
-            toast({
-                title: "No Candidates",
-                description: `No ${type} candidates to send emails to`,
-                variant: "destructive",
-            });
-            return;
-        }
-
-        setIsSendingEmails(true);
-
-        try {
-            // Get user info
-            if (!user) throw new Error("User not authenticated");
-
-            // Prepare company info using user data
-            const companyInfo: CompanyInfo = {
-                companyName: "Verolabz",
-                hrName: user.displayName || "HR Team",
-                hrEmail: user.email || "hr@verolabz.com",
-            };
-
-            // Prepare candidate email data
-            // TEMPORARY FIX: Using your email for testing since resume doesn't have email field
-            const candidateEmails: CandidateEmailData[] = targetCandidates.map(c => ({
-                name: c.candidateName,
-                email: "yashdave12@gmail.com", // TODO: Extract actual email from resume parsing
-                jobRole: "Software Developer", // TODO: Add jobRole field to resume
-            }));
-
-            console.log("📧 Candidate emails prepared:", candidateEmails);
-
-            // Map "accepted"/"rejected" to "acceptance"/"rejection"
-            const emailType: "acceptance" | "rejection" = type === "accepted" ? "acceptance" : "rejection";
-
-            console.log("🚀 About to call sendBulkEmails...");
-
-            // Send bulk emails
-            const result = await sendBulkEmails(
-                candidateEmails,
-                emailType,
-                companyInfo
-            );
-
-            console.log("✅ sendBulkEmails returned:", result);
-            console.log("📊 Result details - sent:", result.sent, "failed:", result.failed);
-
-            if (result.failed > 0) {
-                toast({
-                    title: "Partially Sent",
-                    description: `${result.sent} emails sent successfully, ${result.failed} failed`,
-                    variant: "destructive",
-                });
-            } else {
-                toast({
-                    title: "Emails Sent Successfully",
-                    description: `${type === "accepted" ? "Acceptance" : "Rejection"} emails sent to ${result.sent} candidate(s)`,
-                });
-            }
-        } catch (error: any) {
-            console.error("Failed to send emails:", error);
-            toast({
-                title: "Error",
-                description: error.message || "Failed to send emails",
-                variant: "destructive",
-            });
-        } finally {
-            setIsSendingEmails(false);
-        }
-    };
 
     const acceptedCount = filteredCandidates.filter((c) => c.status === "accepted").length;
     const rejectedCount = filteredCandidates.filter((c) => c.status === "rejected").length;
