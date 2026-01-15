@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Users, RefreshCw, Check, X, Mail } from "lucide-react";
+import { Users, RefreshCw, Check, X, Download } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import {
   getResumesByUserId,
@@ -107,49 +107,89 @@ export default function CandidateManagementPage() {
     }
   };
 
-  const [isSendingEmails, setIsSendingEmails] = useState(false);
-
-  const handleSendEmails = async (targetStatus: "accepted" | "rejected") => {
-    if (!user) {
-      toast({
-        title: "Not logged in",
-        description: "Please sign in to send emails",
-        variant: "destructive",
-      });
+  const exportCsv = () => {
+    if (!filteredCandidates || filteredCandidates.length === 0) {
+      toast({ title: "No candidates", description: "No candidates to export" });
       return;
     }
 
-    try {
-      setIsSendingEmails(true);
+    const headers = [
+      "Name",
+      "ResumeUrl",
+      "Skills",
+      "ExperienceYears",
+      "ATS Score",
+      "Status",
+      "Uploaded At",
+    ];
 
-      // Select candidates in current filtered list that match the target status
-      const toEmail = filteredCandidates.filter(
-        (c) => c.status === targetStatus,
-      );
-
-      if (toEmail.length === 0) {
-        toast({
-          title: "No candidates",
-          description: `There are no ${targetStatus} candidates to email.`,
-        });
-        return;
+    const escape = (val: any) => {
+      if (val === undefined || val === null) return "";
+      const s = String(val);
+      if (/[",\n\r]/.test(s)) {
+        return `"${s.replace(/"/g, '""')}"`;
       }
+      return s;
+    };
 
-      // TODO: wire this up to a real email-sending backend. For now we just notify via toast.
-      // This avoids build/runtime errors while providing a clear UI flow.
+    const rows = filteredCandidates.map((a) => {
+      // Safely handle Firestore Timestamp or plain date/string values for createdAt
+      let uploadedAt = "";
+      try {
+        if (a.createdAt) {
+          // If it's a Firestore Timestamp object it will have a toDate() method
+          const created: any = a.createdAt;
+          if (created && typeof created.toDate === "function") {
+            uploadedAt = created.toDate().toISOString();
+          } else {
+            // Fallback: try to construct a Date from the value
+            const d = new Date(created);
+            if (!isNaN(d.getTime())) {
+              uploadedAt = d.toISOString();
+            } else {
+              uploadedAt = "";
+            }
+          }
+        }
+      } catch (e) {
+        uploadedAt = "";
+      }
+      return [
+        a.candidateName,
+        a.fileUrl || "",
+        a.skills || "",
+        a.experienceYears ?? "",
+        a.atsScore ?? "",
+        a.status || "",
+        uploadedAt,
+      ]
+        .map(escape)
+        .join(",");
+    });
+
+    const csv = [headers.map(escape).join(","), ...rows].join("\r\n");
+    try {
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `candidates_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+
       toast({
-        title: "Emails queued",
-        description: `Queued ${toEmail.length} email(s) to ${targetStatus} candidates.`,
+        title: "CSV exported",
+        description: `Exported ${filteredCandidates.length} candidate(s)`,
       });
     } catch (err) {
-      console.error("Failed to send emails:", err);
+      console.error("Failed to export CSV:", err);
       toast({
         title: "Error",
-        description: "Failed to queue emails",
+        description: "Failed to generate CSV",
         variant: "destructive",
       });
-    } finally {
-      setIsSendingEmails(false);
     }
   };
 
@@ -203,20 +243,11 @@ export default function CandidateManagementPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleSendEmails("accepted")}
-                disabled={acceptedCount === 0 || isSendingEmails}
+                onClick={exportCsv}
+                disabled={filteredCandidates.length === 0}
               >
-                <Mail className="h-4 w-4 mr-2" />
-                Send to {acceptedCount} Accepted
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSendEmails("rejected")}
-                disabled={rejectedCount === 0 || isSendingEmails}
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                Send to {rejectedCount} Rejected
+                <Download className="h-4 w-4 mr-2" />
+                Download CSV
               </Button>
             </div>
           </div>
