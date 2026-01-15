@@ -4,6 +4,7 @@ import { Footer } from "@/components/marketing/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Silk from "@/components/Silk";
 import {
   FileText,
   Brain,
@@ -31,7 +32,21 @@ export default function HomePage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden py-20 md:py-32 bg-gradient-to-b from-[hsl(var(--primary))]/5 to-transparent">
+        <section className="relative overflow-hidden py-20 md:py-32">
+          {/* Silk Background */}
+          <div className="absolute inset-0 -z-10">
+            <Silk
+              speed={3}
+              scale={1.2}
+              color="#667eea"
+              noiseIntensity={1}
+              rotation={0}
+            />
+          </div>
+
+          {/* Overlay for better text readability */}
+          <div className="absolute inset-0 bg-background/80 -z-[9]" />
+
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
