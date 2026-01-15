@@ -35,12 +35,9 @@ export default function HomePage() {
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
-                <Badge variant="secondary" className="mb-4">
-                  <Star className="h-3 w-3 mr-1" />
-                  Trusted by 500+ Companies
-                </Badge>
+
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-                  SaaS Hiring{" "}
+                  Hiring{" "}
                   <span className="text-[hsl(var(--primary))]">Automation</span>{" "}
                   Platform
                 </h1>
