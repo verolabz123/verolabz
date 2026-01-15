@@ -139,14 +139,19 @@ export default function CandidateManagementPage() {
             };
 
             // Prepare candidate email data
+            // TEMPORARY FIX: Using your email for testing since resume doesn't have email field
             const candidateEmails: CandidateEmailData[] = targetCandidates.map(c => ({
                 name: c.candidateName,
-                email: c.fileName || "candidate@example.com", // TODO: Add email field to resume
+                email: "yashdave12@gmail.com", // TODO: Extract actual email from resume parsing
                 jobRole: "Software Developer", // TODO: Add jobRole field to resume
             }));
 
+            console.log("📧 Candidate emails prepared:", candidateEmails);
+
             // Map "accepted"/"rejected" to "acceptance"/"rejection"
             const emailType: "acceptance" | "rejection" = type === "accepted" ? "acceptance" : "rejection";
+
+            console.log("🚀 About to call sendBulkEmails...");
 
             // Send bulk emails
             const result = await sendBulkEmails(
@@ -154,6 +159,9 @@ export default function CandidateManagementPage() {
                 emailType,
                 companyInfo
             );
+
+            console.log("✅ sendBulkEmails returned:", result);
+            console.log("📊 Result details - sent:", result.sent, "failed:", result.failed);
 
             if (result.failed > 0) {
                 toast({
