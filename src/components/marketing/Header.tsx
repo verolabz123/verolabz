@@ -1,53 +1,53 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 export function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const navLinks = [
-        { href: "/features", label: "Features" },
+        { href: "/features", label: "Product" },
+        { href: "/solutions", label: "Solutions" },
         { href: "/pricing", label: "Pricing" },
-        { href: "/how-it-works", label: "How It Works" },
+        { href: "/resources", label: "Resources" },
     ];
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]/95 backdrop-blur supports-[backdrop-filter]:bg-[hsl(var(--background))]/60">
+        <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-[#0B0F14]/80 backdrop-blur-md">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex h-16 items-center justify-between">
                     <Link to="/" className="flex items-center gap-2">
-                        <Briefcase className="h-7 w-7 text-[hsl(var(--primary))]" />
-                        <span className="text-xl font-bold">Verolabz</span>
+                        <span className="text-xl font-bold tracking-tight text-white">Verolabs</span>
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-6">
+                    <nav className="hidden md:flex items-center gap-8">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 to={link.href}
-                                className="text-sm font-medium text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
+                                className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
                             >
                                 {link.label}
                             </Link>
                         ))}
                     </nav>
 
-                    <div className="hidden md:flex items-center gap-4">
-                        <Link to="/auth/login">
-                            <Button variant="ghost" size="sm">
-                                Sign In
-                            </Button>
+                    <div className="hidden md:flex items-center gap-6">
+                        <Link to="/auth/login" className="text-sm font-medium text-white hover:text-gray-300 transition-colors">
+                            Sign In
                         </Link>
                         <Link to="/auth/register">
-                            <Button size="sm">Start Free Trial</Button>
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-lg shadow-blue-500/20 rounded-lg px-4 font-medium">
+                                Start Free Trial
+                            </Button>
                         </Link>
                     </div>
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="md:hidden p-2"
+                        className="md:hidden p-2 text-white"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         aria-label="Toggle menu"
                     >
@@ -61,26 +61,28 @@ export function Header() {
 
                 {/* Mobile Menu */}
                 {isMenuOpen && (
-                    <div className="md:hidden py-4 border-t border-[hsl(var(--border))]">
-                        <nav className="flex flex-col gap-4">
+                    <div className="md:hidden py-4 border-t border-white/10 bg-[#0B0F14]">
+                        <nav className="flex flex-col gap-4 px-2">
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
                                     to={link.href}
-                                    className="text-sm font-medium text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
+                                    className="text-sm font-medium text-gray-400 hover:text-white transition-colors py-2"
                                     onClick={() => setIsMenuOpen(false)}
                                 >
                                     {link.label}
                                 </Link>
                             ))}
-                            <div className="flex flex-col gap-2 pt-4 border-t border-[hsl(var(--border))]">
+                            <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-white/10">
                                 <Link to="/auth/login" onClick={() => setIsMenuOpen(false)}>
-                                    <Button variant="outline" className="w-full">
+                                    <Button variant="ghost" className="w-full text-white justify-start">
                                         Sign In
                                     </Button>
                                 </Link>
                                 <Link to="/auth/register" onClick={() => setIsMenuOpen(false)}>
-                                    <Button className="w-full">Start Free Trial</Button>
+                                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                                        Start Free Trial
+                                    </Button>
                                 </Link>
                             </div>
                         </nav>
