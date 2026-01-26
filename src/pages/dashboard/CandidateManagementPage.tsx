@@ -10,13 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -24,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Users, RefreshCw, Check, X, Download } from "lucide-react";
+import { Users, RefreshCw, Check, X } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import {
   getResumesByUserId,
@@ -35,19 +28,11 @@ import {
 export default function CandidateManagementPage() {
   const { user } = useAuth();
   const [candidates, setCandidates] = useState<FirebaseResume[]>([]);
-  const [filteredCandidates, setFilteredCandidates] = useState<
-    FirebaseResume[]
-  >([]);
-  const [selectedRole, setSelectedRole] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchCandidates();
   }, [user]);
-
-  useEffect(() => {
-    filterCandidates();
-  }, [selectedRole, candidates]);
 
   const fetchCandidates = async () => {
     if (!user) {
@@ -67,15 +52,6 @@ export default function CandidateManagementPage() {
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const filterCandidates = () => {
-    if (selectedRole === "all") {
-      setFilteredCandidates(candidates);
-    } else {
-      // Filter by role if we had role data - for now show all
-      setFilteredCandidates(candidates);
     }
   };
 
@@ -107,99 +83,6 @@ export default function CandidateManagementPage() {
     }
   };
 
-  const exportCsv = () => {
-    if (!filteredCandidates || filteredCandidates.length === 0) {
-      toast({ title: "No candidates", description: "No candidates to export" });
-      return;
-    }
-
-    const headers = [
-      "Name",
-      "ResumeUrl",
-      "Skills",
-      "ExperienceYears",
-      "ATS Score",
-      "Status",
-      "Uploaded At",
-    ];
-
-    const escape = (val: any) => {
-      if (val === undefined || val === null) return "";
-      const s = String(val);
-      if (/[",\n\r]/.test(s)) {
-        return `"${s.replace(/"/g, '""')}"`;
-      }
-      return s;
-    };
-
-    const rows = filteredCandidates.map((a) => {
-      // Safely handle Firestore Timestamp or plain date/string values for createdAt
-      let uploadedAt = "";
-      try {
-        if (a.createdAt) {
-          // If it's a Firestore Timestamp object it will have a toDate() method
-          const created: any = a.createdAt;
-          if (created && typeof created.toDate === "function") {
-            uploadedAt = created.toDate().toISOString();
-          } else {
-            // Fallback: try to construct a Date from the value
-            const d = new Date(created);
-            if (!isNaN(d.getTime())) {
-              uploadedAt = d.toISOString();
-            } else {
-              uploadedAt = "";
-            }
-          }
-        }
-      } catch (e) {
-        uploadedAt = "";
-      }
-      return [
-        a.candidateName,
-        a.fileUrl || "",
-        a.skills || "",
-        a.experienceYears ?? "",
-        a.atsScore ?? "",
-        a.status || "",
-        uploadedAt,
-      ]
-        .map(escape)
-        .join(",");
-    });
-
-    const csv = [headers.map(escape).join(","), ...rows].join("\r\n");
-    try {
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `candidates_${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "CSV exported",
-        description: `Exported ${filteredCandidates.length} candidate(s)`,
-      });
-    } catch (err) {
-      console.error("Failed to export CSV:", err);
-      toast({
-        title: "Error",
-        description: "Failed to generate CSV",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const acceptedCount = filteredCandidates.filter(
-    (c) => c.status === "accepted",
-  ).length;
-  const rejectedCount = filteredCandidates.filter(
-    (c) => c.status === "rejected",
-  ).length;
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "accepted":
@@ -228,50 +111,7 @@ export default function CandidateManagementPage() {
         </Button>
       </div>
 
-      {/* Filter and Actions */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Filters & Actions</CardTitle>
-              <CardDescription>
-                {filteredCandidates.length} candidate(s) | {acceptedCount}{" "}
-                accepted | {rejectedCount} rejected
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={exportCsv}
-                disabled={filteredCandidates.length === 0}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download CSV
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <div className="w-64">
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="frontend">Frontend Developer</SelectItem>
-                  <SelectItem value="backend">Backend Developer</SelectItem>
-                  <SelectItem value="fullstack">
-                    Full Stack Developer
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Candidates Table */}
       <Card>
@@ -286,7 +126,7 @@ export default function CandidateManagementPage() {
             <div className="h-[300px] flex items-center justify-center">
               <RefreshCw className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
             </div>
-          ) : filteredCandidates.length === 0 ? (
+          ) : candidates.length === 0 ? (
             <div className="text-center py-12">
               <Users className="h-12 w-12 mx-auto text-[hsl(var(--muted-foreground))] mb-4" />
               <h3 className="font-semibold mb-2">No candidates found</h3>
@@ -307,7 +147,7 @@ export default function CandidateManagementPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCandidates.map((candidate) => (
+                {candidates.map((candidate) => (
                   <TableRow key={candidate.id}>
                     <TableCell className="font-medium">
                       {candidate.candidateName}
