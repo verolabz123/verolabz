@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getInitials } from "@/lib/utils";
-import { LogOut, Settings, User } from "lucide-react";
+import { LogOut, Settings, User, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
@@ -91,19 +91,23 @@ export function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]/95 backdrop-blur px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-[#0B0F14] px-6">
       <div className="flex items-center gap-4">
-        <h1 className="text-lg font-semibold">Dashboard</h1>
+        {/* Breadcrumb or Context Title could go here, keeping empty for now to let Page header dominate */}
       </div>
 
       <div className="flex items-center gap-4">
-        <Badge variant={planInfo?.variant || "secondary"}>{planInfo?.label || "Free Trial"}</Badge>
+        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-white/5">
+          <Bell className="h-4 w-4" />
+        </Button>
+        <div className="h-4 w-px bg-white/10" />
+        <Badge variant={planInfo?.variant || "secondary"} className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/20">{planInfo?.label || "Free Trial"}</Badge>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
+            <Button variant="ghost" className="relative h-9 w-9 rounded-full ml-2 ring-2 ring-white/5">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className="bg-gradient-to-tr from-blue-600 to-purple-600 text-white font-medium">
                   {user?.displayName
                     ? getInitials(user.displayName)
                     : user?.email?.[0]?.toUpperCase() || "U"}
@@ -111,39 +115,39 @@ export function TopBar() {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuContent className="w-56 bg-[#111827] border-white/10 text-gray-200" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">
+                <p className="text-sm font-medium leading-none text-white">
                   {user?.displayName || "User"}
                 </p>
-                <p className="text-xs leading-none text-[hsl(var(--muted-foreground))]">
+                <p className="text-xs leading-none text-gray-500">
                   {user?.email}
                 </p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
+            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuItem asChild className="focus:bg-white/5 focus:text-white cursor-pointer">
               <Link
                 to="/dashboard/settings/profile"
-                className="cursor-pointer flex items-center"
+                className="flex items-center"
               >
                 <User className="mr-2 h-4 w-4" />
                 Profile
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="focus:bg-white/5 focus:text-white cursor-pointer">
               <Link
                 to="/dashboard/settings/billing"
-                className="cursor-pointer flex items-center"
+                className="flex items-center"
               >
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-white/10" />
             <DropdownMenuItem
-              className="cursor-pointer text-[hsl(var(--destructive))]"
+              className="focus:bg-red-500/10 focus:text-red-400 text-red-400 cursor-pointer"
               onClick={handleLogout}
             >
               <LogOut className="mr-2 h-4 w-4" />

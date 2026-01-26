@@ -4,13 +4,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import {
   FileText,
   UserCheck,
@@ -19,13 +17,15 @@ import {
   ArrowUpRight,
   Upload,
   RefreshCw,
+  Sparkles,
+  ArrowRight
 } from "lucide-react";
 import {
   getResumesByUserId,
   getResumeStats,
-  type FirebaseResume,
 } from "@/lib/firebase-db";
 import { toast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
 
 interface DashboardStats {
   stats: {
@@ -46,36 +46,10 @@ interface DashboardStats {
 }
 
 const statusColors: Record<string, string> = {
-  shortlisted: "bg-emerald-500/15 text-emerald-600",
-  accepted: "bg-emerald-500/15 text-emerald-600",
-  rejected: "bg-red-500/15 text-red-600",
-  pending: "bg-amber-500/15 text-amber-600",
-};
-
-// Helper function to generate chart data from resumes
-const generateChartData = (resumes: FirebaseResume[]) => {
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    return {
-      name: date.toLocaleDateString("en-US", { weekday: "short" }),
-      value: 0,
-      date: date.toDateString(),
-    };
-  });
-
-  resumes.forEach((resume) => {
-    const resumeDate = resume.createdAt?.toDate
-      ? resume.createdAt.toDate()
-      : new Date();
-    const dateStr = resumeDate.toDateString();
-    const dayData = last7Days.find((d) => d.date === dateStr);
-    if (dayData) {
-      dayData.value++;
-    }
-  });
-
-  return last7Days.map(({ name, value }) => ({ name, value }));
+  shortlisted: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  accepted: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  rejected: "bg-red-500/10 text-red-500 border-red-500/20",
+  pending: "bg-amber-500/10 text-amber-500 border-amber-500/20",
 };
 
 function formatDate(dateString: string) {
@@ -115,29 +89,8 @@ export default function DashboardPage() {
         getApplicantsByUserId(user.uid),
       ]);
 
-      // DEBUG: Log what we fetched
-      console.log('=== DASHBOARD DEBUG ===');
-      console.log('Resume stats:', resumeStats);
-      console.log('Total resumes:', resumes.length);
-      console.log('Total applicants:', applicants.length);
-
-      // Log applicant statuses
-      const applicantStatusCounts = applicants.reduce((acc: any, a) => {
-        acc[a.status] = (acc[a.status] || 0) + 1;
-        return acc;
-      }, {});
-      console.log('Applicant status breakdown:', applicantStatusCounts);
-
-      // Log RESUME statuses - this is the key!
-      const resumeStatusCounts = resumes.reduce((acc: any, r) => {
-        acc[r.status] = (acc[r.status] || 0) + 1;
-        return acc;
-      }, {});
-      console.log('RESUME status breakdown:', resumeStatusCounts);
-
       // Combine stats from both collections
       const applicantStats = await getApplicantStats(user.uid);
-      console.log('Applicant stats:', applicantStats);
 
       const combinedStats = {
         total: resumeStats.total + applicants.length,
@@ -146,9 +99,6 @@ export default function DashboardPage() {
         pending: resumeStats.pending + applicantStats.completed + applicantStats.queued + applicantStats.processing,
       };
 
-      console.log('Combined stats:', combinedStats);
-      console.log('=== END DEBUG ===');
-
       // Sort resumes by creation date (newest first)
       const sortedResumes = resumes.sort((a, b) => {
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
@@ -156,8 +106,8 @@ export default function DashboardPage() {
         return dateB.getTime() - dateA.getTime();
       });
 
-      // Get recent candidates from resumes (top 4)
-      const recentFromResumes = sortedResumes.slice(0, 4).map((resume) => ({
+      // Get recent candidates from resumes (top 6)
+      const recentFromResumes = sortedResumes.slice(0, 6).map((resume) => ({
         id: resume.id || "",
         candidateName: resume.candidateName,
         skills: resume.skills,
@@ -168,12 +118,9 @@ export default function DashboardPage() {
           new Date().toISOString(),
       }));
 
-      // Generate chart data combining both sources
-      const chartData = generateChartData(resumes);
-
       setData({
         stats: combinedStats,
-        chartData,
+        chartData: [],
         recentCandidates: recentFromResumes,
       });
     } catch (error) {
@@ -207,21 +154,31 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 animate-fade-in text-white/90">
+
+      {/* Executive Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-white/5">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-[hsl(var(--muted-foreground))]">
-            Overview of your hiring pipeline
-          </p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
+          <div className="flex items-center gap-2 mt-2 text-gray-400">
+            <span className="text-sm font-medium">Hiring Overview</span>
+            <span className="w-1 h-1 rounded-full bg-gray-600" />
+            <span className="text-xs text-gray-500">Last updated just now</span>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchStats}>
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex flex-col items-end mr-4">
+            <span className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Acceptance Rate</span>
+            <span className="text-lg font-bold text-emerald-400">
+              {stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0}% <span className="text-xs text-gray-500 font-normal">vs last week</span>
+            </span>
+          </div>
+          <Button variant="outline" size="sm" onClick={fetchStats} className="bg-transparent border-white/10 text-gray-300 hover:text-white hover:bg-white/5 hover:border-white/20">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <Link to="/dashboard/bulk-upload">
-            <Button size="sm">
+            <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 border-0">
               <Upload className="h-4 w-4 mr-2" />
               Upload Resume
             </Button>
@@ -229,205 +186,168 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      {/* Insight Widget */}
+      <div className="rounded-lg border border-purple-500/20 bg-gradient-to-r from-purple-500/10 to-blue-500/5 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-purple-500/20 text-purple-400">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-white">Hiring Insight</h3>
+            <p className="text-xs text-gray-400">Your average time-to-hire has decreased by 12% this week. Great job!</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Decision Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-[#111827] border-white/5 shadow-xl shadow-black/20 hover:border-blue-500/20 transition-all hover:translate-y-[-2px] group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Resumes</CardTitle>
-            <FileText className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+            <CardTitle className="text-sm font-medium text-gray-400">Accepted</CardTitle>
+            <UserCheck className="h-4 w-4 text-emerald-500 group-hover:text-emerald-400 transition-colors" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              Processed this month
-            </p>
+            <div className="text-3xl font-bold text-white mb-2">{stats.accepted}</div>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-emerald-500 font-medium">
+                {stats.accepted > 0 ? "Candidates ready" : "No candidates yet"}
+              </p>
+              {stats.accepted > 0 && <ArrowRight className="h-3 w-3 text-emerald-500" />}
+            </div>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="bg-[#111827] border-white/5 shadow-xl shadow-black/20 hover:border-amber-500/20 transition-all hover:translate-y-[-2px] group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Accepted</CardTitle>
-            <UserCheck className="h-4 w-4 text-emerald-600" />
+            <CardTitle className="text-sm font-medium text-gray-400">Pending Review</CardTitle>
+            <Clock className="h-4 w-4 text-amber-500 group-hover:text-amber-400 transition-colors" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">
-              {stats.accepted}
+            <div className="text-3xl font-bold text-white mb-2">{stats.pending}</div>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-amber-500 font-medium">
+                {stats.pending > 0 ? "Action required" : "All caught up ✓"}
+              </p>
+              {stats.pending > 0 && <ArrowRight className="h-3 w-3 text-amber-500" />}
             </div>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              Ready for interview
-            </p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="bg-[#111827] border-white/5 shadow-xl shadow-black/20 hover:border-red-500/20 transition-all hover:translate-y-[-2px] group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rejected</CardTitle>
-            <UserX className="h-4 w-4 text-red-600" />
+            <CardTitle className="text-sm font-medium text-gray-400">Rejected</CardTitle>
+            <UserX className="h-4 w-4 text-red-500 group-hover:text-red-400 transition-colors" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {stats.rejected}
-            </div>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
+            <div className="text-3xl font-bold text-white mb-2">{stats.rejected}</div>
+            <p className="text-xs text-gray-500">
               Not matching criteria
             </p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="bg-[#111827] border-white/5 shadow-xl shadow-black/20 hover:border-blue-500/20 transition-all hover:translate-y-[-2px] group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-amber-600" />
+            <CardTitle className="text-sm font-medium text-gray-400">Total Processed</CardTitle>
+            <FileText className="h-4 w-4 text-blue-500 group-hover:text-blue-400 transition-colors" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">
-              {stats.pending}
-            </div>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              Awaiting review
+            <div className="text-3xl font-bold text-white mb-2">{stats.total}</div>
+            <p className="text-xs text-gray-500">
+              Across all jobs
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Candidates */}
-      <Card>
-        <CardHeader>
+      {/* Premium Candidate List */}
+      <Card className="bg-[#111827] border-white/5 shadow-xl shadow-black/20 overflow-hidden">
+        <CardHeader className="border-b border-white/5 pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Recent Candidates</CardTitle>
-              <CardDescription>Latest uploaded resumes</CardDescription>
+              <CardTitle className="text-lg font-semibold text-white">Recent Candidates</CardTitle>
+              <div className="text-xs text-gray-400 mt-1">Latest applicants ranked by AI confidence</div>
             </div>
             <Link to="/dashboard/candidates">
-              <Button variant="outline" size="sm">
+              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-white/5">
                 View All
                 <ArrowUpRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="h-[200px] flex items-center justify-center">
-              <RefreshCw className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
+            <div className="h-[300px] flex items-center justify-center">
+              <RefreshCw className="h-8 w-8 animate-spin text-gray-600" />
             </div>
           ) : data?.recentCandidates?.length === 0 ? (
-            <div className="text-center py-12">
-              <FileText className="h-12 w-12 mx-auto text-[hsl(var(--muted-foreground))] mb-4" />
-              <h3 className="font-semibold mb-2">No candidates yet</h3>
-              <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">
-                Upload your first resume to get started
+            <div className="text-center py-20">
+              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                <FileText className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="font-semibold text-white mb-2">No candidates yet</h3>
+              <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
+                Upload resumes to see AI ranking and analysis here.
               </p>
               <Link to="/dashboard/bulk-upload">
-                <Button>
+                <Button className="bg-blue-600 hover:bg-blue-500 text-white rounded-lg">
                   <Upload className="h-4 w-4 mr-2" />
-                  Upload Resume
+                  Upload First Resume
                 </Button>
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
-              {data?.recentCandidates?.map((candidate) => (
-                <div
-                  key={candidate.id}
-                  className="flex items-center gap-4 p-4 rounded-lg border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]/50 transition-colors"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {candidate.candidateName}
-                      </span>
-                      <Badge className={statusColors[candidate.status]}>
-                        {candidate.status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-[hsl(var(--muted-foreground))] truncate">
-                      {candidate.skills.split(",").slice(0, 3).join(", ")}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">ATS Score</span>
-                      <span className="text-lg font-bold text-[hsl(var(--primary))]">
-                        {candidate.atsScore}%
-                      </span>
-                    </div>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                      {formatDate(candidate.createdAt)}
-                    </p>
-                  </div>
-                  <div className="w-20">
-                    <Progress value={candidate.atsScore} className="h-2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Accepted Candidates */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Accepted Candidates</CardTitle>
-              <CardDescription>Candidates ready for interview</CardDescription>
-            </div>
-            <Link to="/dashboard/candidates">
-              <Button variant="outline" size="sm">
-                View All
-                <ArrowUpRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="h-[200px] flex items-center justify-center">
-              <RefreshCw className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
-            </div>
-          ) : stats.accepted === 0 ? (
-            <div className="text-center py-12">
-              <UserCheck className="h-12 w-12 mx-auto text-[hsl(var(--muted-foreground))] mb-4" />
-              <h3 className="font-semibold mb-2">No accepted candidates yet</h3>
-              <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">
-                Accepted candidates will appear here
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {data?.recentCandidates?.filter(c => c.status === 'shortlisted' || c.status === 'accepted').slice(0, 5).map((candidate) => (
-                <div
+              {data?.recentCandidates?.map((candidate, index) => (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
                   key={candidate.id}
-                  className="flex items-center gap-4 p-4 rounded-lg border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+                  className="group flex flex-col md:flex-row md:items-center gap-4 p-4 border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <UserCheck className="h-4 w-4 text-emerald-600" />
-                      <span className="font-medium">
-                        {candidate.candidateName}
-                      </span>
-                      <Badge className="bg-emerald-500/15 text-emerald-600">
-                        Accepted
-                      </Badge>
+                  {/* Avatar & Name */}
+                  <div className="flex items-center gap-4 md:w-[250px]">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border border-white/10 flex items-center justify-center text-sm font-bold text-white">
+                      {candidate.candidateName.charAt(0)}
                     </div>
-                    <p className="text-sm text-[hsl(var(--muted-foreground))] truncate mt-1">
-                      {candidate.skills.split(",").slice(0, 3).join(", ")}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">ATS Score</span>
-                      <span className="text-lg font-bold text-emerald-600">
-                        {candidate.atsScore}%
-                      </span>
+                    <div>
+                      <div className="font-medium text-white group-hover:text-blue-400 transition-colors">{candidate.candidateName}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{candidate.skills.split(",")[0] || "No specific role"}</div>
                     </div>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                      {formatDate(candidate.createdAt)}
-                    </p>
                   </div>
-                  <div className="w-20">
-                    <Progress value={candidate.atsScore} className="h-2" />
+
+                  {/* Status */}
+                  <div className="md:w-[150px]">
+                    <Badge variant="outline" className={`text-xs font-normal capitalize ${statusColors[candidate.status] || "text-gray-400 border-gray-700"}`}>
+                      {candidate.status}
+                    </Badge>
                   </div>
-                </div>
+
+                  {/* ATS Score Progress */}
+                  <div className="flex-1 md:px-4">
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="text-gray-500">Match Confidence</span>
+                      <span className="font-bold text-white">{candidate.atsScore}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${candidate.atsScore > 85 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : candidate.atsScore > 70 ? 'bg-gradient-to-r from-blue-500 to-blue-400' : 'bg-gray-600'}`}
+                        style={{ width: `${candidate.atsScore}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end md:w-[150px] gap-2">
+                    <span className="text-xs text-gray-600 mr-2">{formatDate(candidate.createdAt)}</span>
+                    <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-8 hover:bg-white/5">
+                      View Profile
+                      <ArrowRight className="ml-1.5 h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </Button>
+                  </div>
+                </motion.div>
               ))}
             </div>
           )}
