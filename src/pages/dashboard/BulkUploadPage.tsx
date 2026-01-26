@@ -132,7 +132,7 @@ export default function BulkUploadPage() {
     setUploadState({
       status: "uploading",
       progress: 20,
-      message: "Uploading Excel to HF Space...",
+      message: "Processing Excel File...",
     });
 
     try {
@@ -153,8 +153,8 @@ export default function BulkUploadPage() {
             progress,
             message:
               progress < 100
-                ? "Uploading to HF Space..."
-                : "Processing in HF Space...",
+                ? "Processing File..."
+                : "Finalizing Processing...",
           });
         },
       );
@@ -166,12 +166,12 @@ export default function BulkUploadPage() {
       setUploadState({
         status: "success",
         progress: 100,
-        message: "Excel uploaded successfully! HF Space is processing...",
+        message: "Excel processed successfully! Candidates are ready.",
       });
 
       toast({
-        title: "Upload Complete",
-        description: `Excel uploaded to HF Space. Check the Candidates page for results.`,
+        title: "Processing Complete",
+        description: `Candidates have been extracted and processed successfully.`,
       });
 
       // Reset after success
@@ -403,8 +403,7 @@ export default function BulkUploadPage() {
                       </h4>
                       <p className="text-sm text-emerald-600 dark:text-emerald-300 mt-1">
                         Excel file has correct columns. Found ~
-                        {fileValidation.rowCount || 0} rows. Ready to upload to
-                        HF Space for processing.
+                        {fileValidation.rowCount || 0} rows. Ready for processing.
                       </p>
                     </div>
                   </div>
@@ -439,7 +438,7 @@ export default function BulkUploadPage() {
             {fileValidation?.valid && uploadState.status !== "uploading" && (
               <Button onClick={handleUpload} className="flex-1">
                 <Upload className="h-4 w-4 mr-2" />
-                Upload Excel to HF Space
+                Upload & Process Excel
               </Button>
             )}
           </div>
