@@ -17,8 +17,11 @@ export function Header() {
         <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-[#0B0F14]/80 backdrop-blur-md">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex h-16 items-center justify-between">
-                    <Link to="/" className="flex items-center gap-2">
-                        <span className="text-xl font-bold tracking-tight text-white">Verolabs</span>
+                    <Link to="/" className="flex items-center gap-2 group">
+                        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-600/20 transition-transform group-hover:scale-110 group-hover:rotate-3">
+                            V
+                        </div>
+                        <span className="text-xl font-bold tracking-tight text-white group-hover:text-blue-400 transition-colors">Verolabz</span>
                     </Link>
 
                     {/* Desktop Navigation */}

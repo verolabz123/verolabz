@@ -38,7 +38,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex h-16 items-center gap-2 px-6">
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">V</div>
-          <span className="text-lg font-bold text-white tracking-tight">Verolabs</span>
+          <span className="text-lg font-bold text-white tracking-tight">Verolabz</span>
         </div>
 
         {/* Navigation */}

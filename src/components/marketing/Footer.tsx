@@ -8,10 +8,11 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <span className="text-xl font-bold tracking-tight">Verolabs</span>
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">V</div>
+              <span className="text-xl font-bold text-white">Verolabz</span>
             </Link>
-            <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
-              The operating system for modern hiring teams. Automate screening, reduce bias, and hire faster.
+            <p className="text-gray-400 text-sm leading-relaxed">
+              The intelligent hiring OS for high-growth agencies and teams. Automate screening, reduce bias, and hire faster.
             </p>
           </div>
 

@@ -200,7 +200,7 @@ export default function ProfilePage() {
               <Input
                 id="company"
                 name="company"
-                placeholder="e.g. Verolabs Technologies"
+                placeholder="e.g. Verolabz Technologies"
                 value={formData.company}
                 onChange={handleChange}
                 className="bg-[#0B0F14] border-white/10 text-white placeholder:text-gray-700 focus:border-blue-500/50 focus:ring-blue-500/20 transition-all"

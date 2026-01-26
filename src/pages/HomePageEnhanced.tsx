@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Header } from "@/components/marketing/Header";
 import { Footer } from "@/components/marketing/Footer";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import {
     ChevronRight,
     Check,
@@ -49,12 +49,7 @@ export default function HomePage() {
                             variants={stagger}
                             className="max-w-4xl mx-auto"
                         >
-                            {/* Badge */}
-                            <motion.div variants={fadeInUp} className="flex justify-center mb-8">
-                                <Badge variant="secondary" className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 px-3 py-1 text-xs font-normal tracking-wide uppercase backdrop-blur-sm">
-                                    Verolabs 2.0 is here
-                                </Badge>
-                            </motion.div>
+
 
                             {/* Headline */}
                             <motion.h1
@@ -201,7 +196,7 @@ export default function HomePage() {
                     <div className="container mx-auto px-4 md:px-6">
                         <div className="grid md:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">
                             <div>
-                                <h2 className="text-3xl md:text-5xl font-bold mb-8 text-white">Why Verolabs Wins</h2>
+                                <h2 className="text-3xl md:text-5xl font-bold mb-8 text-white">Why Verolabz Wins</h2>
                                 <div className="space-y-8">
                                     {[
                                         { title: "10x Faster Screening", desc: "Process 1,000+ resumes in the time it takes to read one.", icon: Zap },
