@@ -18,8 +18,6 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
-  Users,
-  Zap,
 } from "lucide-react";
 import {
   downloadSampleExcel,
@@ -241,44 +239,7 @@ export default function BulkUploadPage() {
         </p>
       </div>
 
-      {/* Info Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Excel Format</CardTitle>
-            <FileSpreadsheet className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              .xlsx or .csv with required columns
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Processing</CardTitle>
-            <Zap className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              AI-powered via HF Space + n8n
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Real-time</CardTitle>
-            <Users className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              Results update automatically
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Info Cards - REMOVED per user request */}
 
       {/* Required Schema */}
       <Card>
@@ -371,11 +332,10 @@ export default function BulkUploadPage() {
         </CardHeader>
         <CardContent>
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragging
-                ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/5"
-                : "border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]/50"
-            }`}
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isDragging
+              ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary))]/5"
+              : "border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]/50"
+              }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -486,63 +446,7 @@ export default function BulkUploadPage() {
         </CardContent>
       </Card>
 
-      {/* How It Works */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">How It Works</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[hsl(var(--primary))] text-white flex items-center justify-center text-xs font-bold">
-                1
-              </div>
-              <div>
-                <h4 className="font-medium">Upload Excel File</h4>
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                  Excel file is sent directly to HF Space for processing
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[hsl(var(--primary))] text-white flex items-center justify-center text-xs font-bold">
-                2
-              </div>
-              <div>
-                <h4 className="font-medium">HF Space Processing</h4>
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                  HF Space parses Excel, downloads resumes, extracts data
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[hsl(var(--primary))] text-white flex items-center justify-center text-xs font-bold">
-                3
-              </div>
-              <div>
-                <h4 className="font-medium">AI Evaluation (n8n + Groq)</h4>
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                  n8n workflow calls Groq API for intelligent candidate scoring
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[hsl(var(--primary))] text-white flex items-center justify-center text-xs font-bold">
-                4
-              </div>
-              <div>
-                <h4 className="font-medium">Results in Firebase</h4>
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                  Scored candidates appear in your dashboard automatically
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* How It Works - REMOVED per user request */}
     </div>
   );
 }

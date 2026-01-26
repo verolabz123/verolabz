@@ -22,7 +22,6 @@ import {
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -43,7 +42,6 @@ export default function ProfilePage() {
         const userProfile = await getUserById(user.uid);
 
         if (userProfile) {
-          setProfile(userProfile);
           setFormData({
             name: userProfile.name || "",
             company: userProfile.company || "",
@@ -67,7 +65,6 @@ export default function ProfilePage() {
           await createUser(newUserData, user.uid);
           const createdProfile = await getUserById(user.uid);
           if (createdProfile) {
-            setProfile(createdProfile);
             setFormData({
               name: createdProfile.name || "",
               company: createdProfile.company || "",
@@ -114,10 +111,8 @@ export default function ProfilePage() {
         emailNotifications: formData.emailNotifications,
       });
 
-      const updatedProfile = await getUserById(user.uid);
-      if (updatedProfile) {
-        setProfile(updatedProfile);
-      }
+      await getUserById(user.uid);
+      // Removed unused setProfile call
 
       toast({
         title: "Success",
@@ -145,73 +140,116 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold">Profile Settings</h1>
-        <p className="text-muted-foreground">Manage your account information</p>
+      {/* Status Insight - Premium Addition */}
+      <div className="rounded-lg border border-indigo-500/20 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 p-4 flex items-center justify-between animate-fade-in-up">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-indigo-500/20 text-indigo-400">
+            <User className="h-4 w-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-white">Account Status</h3>
+            <p className="text-xs text-gray-400">
+              Free Trial • <span className="text-white font-medium">12 days remaining</span>
+            </p>
+          </div>
+        </div>
+        <Button size="sm" variant="outline" className="text-xs h-7 border-indigo-500/30 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10">
+          Upgrade to unlock bulk uploads
+        </Button>
       </div>
 
-      <Card>
-        <CardHeader>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
+          Account & preferences
+        </h1>
+        <p className="text-gray-400">
+          Manage your account control center and notification settings
+        </p>
+      </div>
+
+      <Card className="bg-[#111827] border-white/5 shadow-xl shadow-black/20">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 pb-4">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
-              <User className="h-6 w-6 text-primary-foreground" />
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center border border-white/10 shadow-lg shadow-blue-500/20">
+              <User className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>{user?.email || profile?.email}</CardDescription>
+              <CardTitle className="text-white">Account Information</CardTitle>
+              <CardDescription className="text-gray-500">Primary account details</CardDescription>
             </div>
           </div>
+          <p className="hidden sm:block text-xs text-gray-600 font-mono">
+            Last updated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          </p>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <CardContent className="space-y-6 pt-6">
+          <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-gray-300">Full Name</Label>
               <Input
                 id="name"
                 name="name"
                 placeholder="John Doe"
                 value={formData.name}
                 onChange={handleChange}
+                className="bg-[#0B0F14] border-white/10 text-white placeholder:text-gray-700 focus:border-blue-500/50 focus:ring-blue-500/20 transition-all"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="company">Company Name</Label>
+              <Label htmlFor="company" className="text-gray-300">Company Name</Label>
               <Input
                 id="company"
                 name="company"
-                placeholder="Acme Inc."
+                placeholder="e.g. Verolabs Technologies"
                 value={formData.company}
                 onChange={handleChange}
+                className="bg-[#0B0F14] border-white/10 text-white placeholder:text-gray-700 focus:border-blue-500/50 focus:ring-blue-500/20 transition-all"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">Role / Title</Label>
+            <Label htmlFor="role" className="text-gray-300">Role at Company</Label>
             <Input
               id="role"
               name="role"
-              placeholder="HR Manager"
+              placeholder="e.g. Senior Talent Acquisition Manager"
               value={formData.role}
               onChange={handleChange}
+              className="bg-[#0B0F14] border-white/10 text-white placeholder:text-gray-700 focus:border-blue-500/50 focus:ring-blue-500/20 transition-all"
             />
           </div>
         </CardContent>
+
+        {/* Integrated Footer Action */}
+        <div className="flex items-center justify-end p-4 bg-[#0B0F14]/50 border-t border-white/5 rounded-b-xl">
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-500/20 transition-all"
+          >
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            Save Settings
+          </Button>
+        </div>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Notification Preferences</CardTitle>
-          <CardDescription>
-            Control how you receive notifications
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-medium">Email Notifications</div>
-              <p className="text-sm text-muted-foreground">
-                Receive email updates about new candidates and status changes
+      <div className="space-y-2 pt-4">
+        <h2 className="text-lg font-semibold text-white">Notification Preferences</h2>
+        <p className="text-sm text-gray-400">Stay informed without the noise</p>
+      </div>
+
+      <Card className="bg-[#111827] border-white/5 shadow-xl shadow-black/20">
+        <CardContent className="p-0">
+          <div className="flex items-center justify-between p-6 hover:bg-white/[0.02] transition-colors">
+            <div className="space-y-1">
+              <div className="font-medium text-white">Email Notifications</div>
+              <p className="text-sm text-gray-500">
+                Get updates when candidates are shortlisted or rejected
               </p>
             </div>
             <Switch
@@ -222,21 +260,16 @@ export default function ProfilePage() {
                   emailNotifications: checked,
                 }))
               }
+              className="data-[state=checked]:bg-blue-600"
             />
           </div>
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving}>
-          {isSaving ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          Save Changes
-        </Button>
-      </div>
+      {/* Danger Zone Placeholder (for future) */}
+      {/* <div className="pt-8 border-t border-white/5"> ... </div> */}
+
     </div>
   );
 }
+

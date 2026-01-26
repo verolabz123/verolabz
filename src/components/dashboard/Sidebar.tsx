@@ -43,7 +43,7 @@ export function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 px-3 py-6">
-          <div className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+          <div className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
             Main
           </div>
           {navigation.map((item) => {
@@ -53,21 +53,24 @@ export function Sidebar() {
                 key={item.name}
                 to={item.disabled ? "#" : item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+                  "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 relative overflow-hidden",
                   isActive
-                    ? "bg-[#1F2937] text-white border-l-2 border-blue-500" // Active: #1F2937 + accent
-                    : "text-gray-400 hover:text-white hover:bg-[#111827]", // Hover: #111827
+                    ? "text-white bg-white/[0.08]" // Active: subtle light background
+                    : "text-gray-500 hover:text-gray-200 hover:bg-white/[0.04]", // Hover: brighter text, very subtle bg
                   item.disabled && "cursor-not-allowed opacity-50",
                 )}
                 onClick={(e) => item.disabled && e.preventDefault()}
               >
-                <item.icon className={cn("h-4 w-4 transition-colors", isActive ? "text-blue-400" : "text-gray-500 group-hover:text-gray-300")} />
+                {isActive && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-md" />
+                )}
+                <item.icon className={cn("h-4 w-4 transition-colors", isActive ? "text-blue-400" : "text-gray-600 group-hover:text-gray-400")} />
                 {item.name}
               </Link>
             );
           })}
 
-          <div className="mb-2 mt-8 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+          <div className="mb-2 mt-8 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
             Settings
           </div>
           {settingsNavigation.map((item) => {
@@ -77,13 +80,16 @@ export function Sidebar() {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+                  "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 relative overflow-hidden",
                   isActive
-                    ? "bg-[#1F2937] text-white border-l-2 border-blue-500"
-                    : "text-gray-400 hover:text-white hover:bg-[#111827]",
+                    ? "text-white bg-white/[0.08]"
+                    : "text-gray-500 hover:text-gray-200 hover:bg-white/[0.04]",
                 )}
               >
-                <item.icon className={cn("h-4 w-4 transition-colors", isActive ? "text-blue-400" : "text-gray-500 group-hover:text-gray-300")} />
+                {isActive && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-md" />
+                )}
+                <item.icon className={cn("h-4 w-4 transition-colors", isActive ? "text-blue-400" : "text-gray-600 group-hover:text-gray-400")} />
                 {item.name}
               </Link>
             );

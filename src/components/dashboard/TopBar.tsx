@@ -100,61 +100,67 @@ export function TopBar() {
         <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-white/5">
           <Bell className="h-4 w-4" />
         </Button>
-        <div className="h-4 w-px bg-white/10" />
-        <Badge variant={planInfo?.variant || "secondary"} className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/20">{planInfo?.label || "Free Trial"}</Badge>
+        <div className="h-8 w-[1px] bg-white/10 mx-2" />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full ml-2 ring-2 ring-white/5">
-              <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-gradient-to-tr from-blue-600 to-purple-600 text-white font-medium">
-                  {user?.displayName
-                    ? getInitials(user.displayName)
-                    : user?.email?.[0]?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-[#111827] border-white/10 text-gray-200" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none text-white">
-                  {user?.displayName || "User"}
-                </p>
-                <p className="text-xs leading-none text-gray-500">
-                  {user?.email}
-                </p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-white/10" />
-            <DropdownMenuItem asChild className="focus:bg-white/5 focus:text-white cursor-pointer">
-              <Link
-                to="/dashboard/settings/profile"
-                className="flex items-center"
+        <div className="flex items-center gap-3">
+          <Badge
+            variant={planInfo?.variant || "secondary"}
+            className="hidden md:flex bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20 transition-colors"
+          >
+            {planInfo?.label || "Free Trial"}
+          </Badge>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-white/5 hover:ring-white/10 transition-all p-0 overflow-hidden">
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback className="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-medium">
+                    {getInitials(user?.displayName || "User")}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 bg-[#111827] border-white/10 text-gray-200" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none text-white">
+                    {user?.displayName || "User"}
+                  </p>
+                  <p className="text-xs leading-none text-gray-500">
+                    {user?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuItem asChild className="focus:bg-white/5 focus:text-white cursor-pointer">
+                <Link
+                  to="/dashboard/settings/profile"
+                  className="flex items-center"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="focus:bg-white/5 focus:text-white cursor-pointer">
+                <Link
+                  to="/dashboard/settings/billing"
+                  className="flex items-center"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuItem
+                className="focus:bg-red-500/10 focus:text-red-400 text-red-400 cursor-pointer"
+                onClick={handleLogout}
               >
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="focus:bg-white/5 focus:text-white cursor-pointer">
-              <Link
-                to="/dashboard/settings/billing"
-                className="flex items-center"
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-white/10" />
-            <DropdownMenuItem
-              className="focus:bg-red-500/10 focus:text-red-400 text-red-400 cursor-pointer"
-              onClick={handleLogout}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );

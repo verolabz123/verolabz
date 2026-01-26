@@ -168,21 +168,13 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden md:flex flex-col items-end mr-4">
-            <span className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Acceptance Rate</span>
-            <span className="text-lg font-bold text-emerald-400">
-              {stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0}% <span className="text-xs text-gray-500 font-normal">vs last week</span>
-            </span>
+            {/* Acceptance Rate REMOVED */}
           </div>
           <Button variant="outline" size="sm" onClick={fetchStats} className="bg-transparent border-white/10 text-gray-300 hover:text-white hover:bg-white/5 hover:border-white/20">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Link to="/dashboard/bulk-upload">
-            <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 border-0">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Resume
-            </Button>
-          </Link>
+          {/* Upload Resume Button REMOVED */}
         </div>
       </div>
 
@@ -325,18 +317,9 @@ export default function DashboardPage() {
                     </Badge>
                   </div>
 
-                  {/* ATS Score Progress */}
+                  {/* ATS Score Progress - REMOVED per user request */}
                   <div className="flex-1 md:px-4">
-                    <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-gray-500">Match Confidence</span>
-                      <span className="font-bold text-white">{candidate.atsScore}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${candidate.atsScore > 85 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : candidate.atsScore > 70 ? 'bg-gradient-to-r from-blue-500 to-blue-400' : 'bg-gray-600'}`}
-                        style={{ width: `${candidate.atsScore}%` }}
-                      />
-                    </div>
+                    {/* Blank space or alternative content could go here if needed */}
                   </div>
 
                   {/* Actions */}
