@@ -5,7 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Pages
-import HomePage from "@/pages/HomePage";
+import HomePage from "@/pages/HomePageEnhanced"; // Updated import
 import FeaturesPage from "@/pages/FeaturesPage";
 import HowItWorksPage from "@/pages/HowItWorksPage";
 import PricingPage from "@/pages/PricingPage";
